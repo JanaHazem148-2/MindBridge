@@ -1,0 +1,104 @@
+{"text": "I don't want to be alive anymore. I've been thinking about ending it.", "label": 1, "category": "suicidal_ideation", "severity": "high", "lang": "en"}
+{"text": "I've been cutting myself to cope with the pain.", "label": 1, "category": "self_harm", "severity": "high", "lang": "en"}
+{"text": "I have a plan to kill myself this weekend.", "label": 1, "category": "suicidal_plan", "severity": "critical", "lang": "en"}
+{"text": "I took an overdose of pills last night.", "label": 1, "category": "suicide_attempt", "severity": "critical", "lang": "en"}
+{"text": "I feel like a burden and everyone would be better off without me.", "label": 1, "category": "suicidal_ideation", "severity": "high", "lang": "en"}
+{"text": "I have a gun and I'm thinking about using it on myself.", "label": 1, "category": "suicidal_plan", "severity": "critical", "lang": "en"}
+{"text": "I can't go on like this. I want to die.", "label": 1, "category": "suicidal_ideation", "severity": "high", "lang": "en"}
+{"text": "I've been hurting myself because I don't know what else to do.", "label": 1, "category": "self_harm", "severity": "high", "lang": "en"}
+{"text": "I've decided. I'm going to do it tonight.", "label": 1, "category": "suicidal_plan", "severity": "critical", "lang": "en"}
+{"text": "I keep having thoughts about jumping off a bridge.", "label": 1, "category": "suicidal_ideation", "severity": "high", "lang": "en"}
+{"text": "I've been stockpiling my medication for weeks.", "label": 1, "category": "suicidal_plan", "severity": "critical", "lang": "en"}
+{"text": "I've written goodbye letters to my family.", "label": 1, "category": "suicidal_plan", "severity": "critical", "lang": "en"}
+{"text": "I tried to hurt myself last week but didn't succeed.", "label": 1, "category": "suicide_attempt", "severity": "critical", "lang": "en"}
+{"text": "Life feels pointless. I don't see the point of continuing anymore.", "label": 1, "category": "suicidal_ideation", "severity": "high", "lang": "en"}
+{"text": "I've been giving away all my belongings to people I care about.", "label": 1, "category": "suicidal_plan", "severity": "high", "lang": "en"}
+{"text": "I'm saying goodbye to everyone. This is the last time I'll talk to you.", "label": 1, "category": "suicidal_plan", "severity": "critical", "lang": "en"}
+{"text": "I just need the pain to end. I'd do absolutely anything for it to stop.", "label": 1, "category": "suicidal_ideation", "severity": "high", "lang": "en"}
+{"text": "I don't care if I live or die anymore. It doesn't matter.", "label": 1, "category": "suicidal_ideation", "severity": "high", "lang": "en"}
+{"text": "I've been driving recklessly because I'm hoping something will happen.", "label": 1, "category": "suicidal_ideation", "severity": "high", "lang": "en"}
+{"text": "I feel completely empty. There is absolutely nothing left inside me.", "label": 1, "category": "suicidal_ideation", "severity": "high", "lang": "en"}
+{"text": "I just want to go to sleep and not wake up. Ever.", "label": 1, "category": "suicidal_ideation", "severity": "high", "lang": "en"}
+{"text": "I've been researching methods online. I know exactly what I'm going to do.", "label": 1, "category": "suicidal_plan", "severity": "critical", "lang": "en"}
+{"text": "I'm not sure I'll be here by next week.", "label": 1, "category": "suicidal_ideation", "severity": "high", "lang": "en"}
+{"text": "Nobody would miss me if I was gone. They'd be relieved.", "label": 1, "category": "suicidal_ideation", "severity": "high", "lang": "en"}
+{"text": "I've been burning myself with cigarettes because I deserve the pain.", "label": 1, "category": "self_harm", "severity": "high", "lang": "en"}
+{"text": "I stopped eating completely because I don't deserve food.", "label": 1, "category": "self_harm", "severity": "high", "lang": "en"}
+{"text": "I've been drinking heavily every night hoping I won't wake up.", "label": 1, "category": "suicidal_ideation", "severity": "high", "lang": "en"}
+{"text": "I called to say goodbye. I love you but I can't do this anymore.", "label": 1, "category": "suicidal_plan", "severity": "critical", "lang": "en"}
+{"text": "I've been standing on ledges thinking about jumping. I haven't yet.", "label": 1, "category": "suicidal_ideation", "severity": "critical", "lang": "en"}
+{"text": "I have everything ready. I just needed to tell someone first.", "label": 1, "category": "suicidal_plan", "severity": "critical", "lang": "en"}
+{"text": "مش عايز أكمل. أنا تعبت من الحياة دي خالص.", "label": 1, "category": "suicidal_ideation", "severity": "high", "lang": "ar_eg"}
+{"text": "بفكر أنهي حياتي. مش قادر أتحمل أكتر من كده.", "label": 1, "category": "suicidal_ideation", "severity": "high", "lang": "ar_eg"}
+{"text": "عندي خطة أقتل نفسي. حددت وقت ومكان.", "label": 1, "category": "suicidal_plan", "severity": "critical", "lang": "ar_eg"}
+{"text": "أخدت جرعة كبيرة من الدواء امبارح اللي فات.", "label": 1, "category": "suicide_attempt", "severity": "critical", "lang": "ar_eg"}
+{"text": "حاسس إن الناس كلها أحسن من غيري. عبء على كل الناس.", "label": 1, "category": "suicidal_ideation", "severity": "high", "lang": "ar_eg"}
+{"text": "بأذي نفسي عشان أحس بحاجة. مش قادر أوقف.", "label": 1, "category": "self_harm", "severity": "high", "lang": "ar_eg"}
+{"text": "مش شايف معنى لأي حاجة. عايز أختفي من الدنيا دي.", "label": 1, "category": "suicidal_ideation", "severity": "high", "lang": "ar_eg"}
+{"text": "كتبت رسايل لأهلي أودعهم. أنا عارف هيبكوا.", "label": 1, "category": "suicidal_plan", "severity": "critical", "lang": "ar_eg"}
+{"text": "مش عارف هكون موجود الأسبوع الجاي. بجد.", "label": 1, "category": "suicidal_ideation", "severity": "high", "lang": "ar_eg"}
+{"text": "محتاج الألم ده يوقف بأي طريقة. أي طريقة.", "label": 1, "category": "suicidal_ideation", "severity": "high", "lang": "ar_eg"}
+{"text": "تعبت وأنا مش قادر أكمل. ده آخر كلام ليا.", "label": 1, "category": "suicidal_plan", "severity": "critical", "lang": "ar_eg"}
+{"text": "حاسس إني عبء على كل الناس اللي بتحبني.", "label": 1, "category": "suicidal_ideation", "severity": "high", "lang": "ar_eg"}
+{"text": "بفكر أرمي نفسي من فوق. وقفت على السطح امبارح.", "label": 1, "category": "suicidal_ideation", "severity": "critical", "lang": "ar_eg"}
+{"text": "مش عارف ليه بكمل. مفيش سبب للاستمرار.", "label": 1, "category": "suicidal_ideation", "severity": "high", "lang": "ar_eg"}
+{"text": "أنا خلاص اتقررت الحاجة. مش محتاج تقنعني.", "label": 1, "category": "suicidal_plan", "severity": "critical", "lang": "ar_eg"}
+{"text": "I've been feeling a bit low lately but I'm managing okay with support.", "label": 0, "category": "mild_distress", "severity": "low", "lang": "en"}
+{"text": "Work has been stressful but I have good support from my family.", "label": 0, "category": "general_stress", "severity": "low", "lang": "en"}
+{"text": "I had a rough week. Talking to you really helps me process things.", "label": 0, "category": "general_distress", "severity": "low", "lang": "en"}
+{"text": "I'm doing my breathing exercises and they seem to help a little.", "label": 0, "category": "coping", "severity": "none", "lang": "en"}
+{"text": "The CBT techniques you suggested have been working well for me.", "label": 0, "category": "coping", "severity": "none", "lang": "en"}
+{"text": "I feel sad sometimes but I know it will pass. It always does.", "label": 0, "category": "mild_distress", "severity": "low", "lang": "en"}
+{"text": "I'm worried about my job but I'm not in crisis or anything like that.", "label": 0, "category": "general_stress", "severity": "low", "lang": "en"}
+{"text": "I've been struggling with anxiety but I have coping strategies now.", "label": 0, "category": "anxiety", "severity": "low", "lang": "en"}
+{"text": "Therapy has been hard but I'm committed to it and I can see progress.", "label": 0, "category": "general", "severity": "none", "lang": "en"}
+{"text": "My mood has been up and down but I reached out to my support network.", "label": 0, "category": "mood", "severity": "low", "lang": "en"}
+{"text": "I haven't been sleeping well because of work stress.", "label": 0, "category": "sleep", "severity": "low", "lang": "en"}
+{"text": "I feel overwhelmed sometimes but I talk to friends when I need to.", "label": 0, "category": "general_stress", "severity": "low", "lang": "en"}
+{"text": "I get frustrated with myself but I would never hurt myself.", "label": 0, "category": "general", "severity": "none", "lang": "en"}
+{"text": "I'm not at my best right now but I'm safe. I just need support.", "label": 0, "category": "general_distress", "severity": "low", "lang": "en"}
+{"text": "Some days are harder than others. Today is one of those days.", "label": 0, "category": "general_distress", "severity": "low", "lang": "en"}
+{"text": "I feel numb sometimes but it passes. I've been through worse.", "label": 0, "category": "mood", "severity": "low", "lang": "en"}
+{"text": "I'm grieving my relationship ending. It's been painful but I'm coping.", "label": 0, "category": "grief", "severity": "low", "lang": "en"}
+{"text": "I've been having dark thoughts but I know they're just thoughts. I won't act.", "label": 0, "category": "passive_ideation", "severity": "low", "lang": "en"}
+{"text": "I'm finding it hard to get out of bed. Depression is real.", "label": 0, "category": "depression", "severity": "moderate", "lang": "en"}
+{"text": "I missed a session last week because I wasn't feeling up to it.", "label": 0, "category": "general", "severity": "none", "lang": "en"}
+{"text": "What are some CBT techniques for managing anxiety at work?", "label": 0, "category": "educational", "severity": "none", "lang": "en"}
+{"text": "Can you help me understand what my PHQ score means?", "label": 0, "category": "educational", "severity": "none", "lang": "en"}
+{"text": "I want to set a therapeutic goal for next week.", "label": 0, "category": "goal_setting", "severity": "none", "lang": "en"}
+{"text": "How do I do a body scan meditation properly?", "label": 0, "category": "educational", "severity": "none", "lang": "en"}
+{"text": "I'd like to talk about my relationship with my mother today.", "label": 0, "category": "therapy", "severity": "none", "lang": "en"}
+{"text": "I've been journaling every night like you suggested. It's helping.", "label": 0, "category": "coping", "severity": "none", "lang": "en"}
+{"text": "Can we go through my thought records together?", "label": 0, "category": "therapy", "severity": "none", "lang": "en"}
+{"text": "I want to understand my emotional triggers better.", "label": 0, "category": "therapy", "severity": "none", "lang": "en"}
+{"text": "My therapist mentioned DBT. Can you explain what that is?", "label": 0, "category": "educational", "severity": "none", "lang": "en"}
+{"text": "I've been practising mindfulness every morning before work.", "label": 0, "category": "coping", "severity": "none", "lang": "en"}
+{"text": "I actually had a really good week this time.", "label": 0, "category": "positive", "severity": "none", "lang": "en"}
+{"text": "Things are looking up a bit. I'm feeling more hopeful.", "label": 0, "category": "positive", "severity": "none", "lang": "en"}
+{"text": "I used my grounding techniques yesterday and they helped.", "label": 0, "category": "coping", "severity": "none", "lang": "en"}
+{"text": "I reached out to a friend when I felt low. That was a big step for me.", "label": 0, "category": "coping", "severity": "none", "lang": "en"}
+{"text": "I made an appointment with my GP about my medication.", "label": 0, "category": "help_seeking", "severity": "none", "lang": "en"}
+{"text": "أنا تعبان شوية بس بتحسن مع الوقت.", "label": 0, "category": "mild_distress", "severity": "low", "lang": "ar_eg"}
+{"text": "الشغل صعب بس عندي دعم من أهلي والحمد لله.", "label": 0, "category": "general_stress", "severity": "low", "lang": "ar_eg"}
+{"text": "مش بنام كويس بسبب الضغط. بس مش في أزمة.", "label": 0, "category": "sleep", "severity": "low", "lang": "ar_eg"}
+{"text": "بحاول أعمل تمارين التنفس كل يوم.", "label": 0, "category": "coping", "severity": "none", "lang": "ar_eg"}
+{"text": "حاسس بضغط بس بتعامل معاه. عندي ناس بيساعدوني.", "label": 0, "category": "general_stress", "severity": "low", "lang": "ar_eg"}
+{"text": "أنا زعلان من حاجات بس عارف هيعدي.", "label": 0, "category": "general_distress", "severity": "low", "lang": "ar_eg"}
+{"text": "محتاج أتكلم عن علاقتي بأهلي النهارده.", "label": 0, "category": "therapy", "severity": "none", "lang": "ar_eg"}
+{"text": "عندي قلق بس بتعامل معاه بالطرق الصح.", "label": 0, "category": "anxiety", "severity": "low", "lang": "ar_eg"}
+{"text": "بكتب في الجورنال كل يوم زي ما اتقالي. بيساعد.", "label": 0, "category": "coping", "severity": "none", "lang": "ar_eg"}
+{"text": "الأسبوع ده كان أحسن شوية. حاسس بتقدم.", "label": 0, "category": "positive", "severity": "none", "lang": "ar_eg"}
+{"text": "اتكلمت مع صاحبي لما حسيت بضغط. ده كان خطوة.", "label": 0, "category": "coping", "severity": "none", "lang": "ar_eg"}
+{"text": "PHQ score بتاعي 8 — ده يعني إيه بالظبط؟", "label": 0, "category": "educational", "severity": "none", "lang": "ar_eg"}
+{"text": "عايز أفهم الـ CBT أكتر وأطبقه صح.", "label": 0, "category": "educational", "severity": "none", "lang": "ar_eg"}
+{"text": "مزاجي بيتغير كتير بس مش فكير في أذية نفسي.", "label": 0, "category": "mood", "severity": "low", "lang": "ar_eg"}
+{"text": "I've been having passive thoughts of not wanting to be here but no plan.", "label": 0, "category": "passive_ideation", "severity": "moderate", "lang": "en"}
+{"text": "Sometimes I wish I could just disappear for a while. Not die, just escape.", "label": 0, "category": "passive_ideation", "severity": "moderate", "lang": "en"}
+{"text": "I've been thinking about death a lot but it's more philosophical.", "label": 0, "category": "passive_ideation", "severity": "moderate", "lang": "en"}
+{"text": "I feel hopeless about the future sometimes but I know that's the depression talking.", "label": 0, "category": "depression", "severity": "moderate", "lang": "en"}
+{"text": "I've been isolating myself but I'm reaching out today which is a step forward.", "label": 0, "category": "depression", "severity": "moderate", "lang": "en"}
+{"text": "My appetite has completely gone. I forget to eat most days.", "label": 0, "category": "depression", "severity": "moderate", "lang": "en"}
+{"text": "I don't enjoy anything anymore. Anhedonia is really getting to me.", "label": 0, "category": "depression", "severity": "moderate", "lang": "en"}
+{"text": "I hurt myself a few months ago but I've been clean since then.", "label": 0, "category": "self_harm_history", "severity": "low", "lang": "en"}
+{"text": "I used to have suicidal thoughts but I don't have them anymore.", "label": 0, "category": "history", "severity": "none", "lang": "en"}
+{"text": "I was hospitalised last year after a crisis. I'm much more stable now.", "label": 0, "category": "history", "severity": "none", "lang": "en"}

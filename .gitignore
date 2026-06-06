@@ -1,0 +1,15 @@
+﻿# Ignore everything outside this folder
+../../../../*
+../../../*
+../../*
+
+# Ignore venv and caches
+.venv/
+__pycache__/
+*.pyc
+
+# Ignore databases
+*.db
+
+# Ignore zip files
+*.zip

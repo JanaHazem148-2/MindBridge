@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mind Bridge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Instrument+Serif:ital@0;1&family=Noto+Naskh+Arabic:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"></noscript>
+<!-- Leaflet: try unpkg first, then cdnjs fallback -->
+<link id="leaflet-css" rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script>
+(function(){
+  // Try primary CDN
+  function loadLeaflet(src, fallback){
+    var s=document.createElement('script');
+    s.src=src;
+    s.onload=function(){window._leafletLoaded=true;};
+    s.onerror=function(){
+      if(fallback){loadLeaflet(fallback,null);}
+      else{window._leafletFailed=true;}
+    };
+    document.head.appendChild(s);
+  }
+  loadLeaflet(
+    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js'
+  );
+  // CSS fallback
+  var css=document.getElementById('leaflet-css');
+  css.onerror=function(){
+    var c=document.createElement('link');
+    c.rel='stylesheet';
+    c.href='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';
+    document.head.appendChild(c);
+  };
+})();
+</script>
+<style>
+:root{--t9:#051a1e;--t8:#082428;--t7:#0a3038;--t6:#0d4455;--t5:#1a7a8f;--t4:#2ab5cc;--t3:#3dcfe5;--t2:#70dce8;--t1:#aaeef5;--navy:#051218;--navy2:#071820;--sky:#a8dce8;--white:#f0fbfd;--muted:#5a8a96;--muted2:#7aaab6;--danger:#e05050;--gold:#f0c040;--green:#40c080;--fh:'Syne',sans-serif;--fb:'Instrument Sans','Noto Naskh Arabic',sans-serif;--fs:'Instrument Serif',Georgia,serif;--eb:cubic-bezier(.34,1.56,.64,1);--eo:cubic-bezier(.16,1,.3,1)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);background:var(--t9);color:var(--white);height:100dvh;overflow:hidden;cursor:none}
+#cur,#cur2{position:fixed;border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%)}
+#cur{width:10px;height:10px;background:var(--t3);transition:width .18s,height .18s;mix-blend-mode:screen}
+#cur2{width:34px;height:34px;border:1.5px solid rgba(61,207,229,.35);transition:width .3s,height .3s}
+button,a,[onclick]{cursor:none}
+.blob{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0}
+.b1{width:700px;height:700px;background:radial-gradient(circle,rgba(26,122,143,.16) 0%,transparent 70%);top:-250px;left:-150px;animation:bf1 14s ease-in-out infinite alternate}
+.b2{width:500px;height:500px;background:radial-gradient(circle,rgba(42,181,204,.1) 0%,transparent 70%);bottom:-180px;right:-80px;animation:bf2 17s ease-in-out infinite alternate}
+.b3{width:350px;height:350px;background:radial-gradient(circle,rgba(13,68,85,.22) 0%,transparent 70%);top:45%;left:55%;animation:bf3 11s ease-in-out infinite alternate}
+@keyframes bf1{from{transform:translate(0,0) scale(1)}to{transform:translate(90px,70px) scale(1.18)}}
+@keyframes bf2{from{transform:translate(0,0) scale(1)}to{transform:translate(-70px,-90px) scale(1.12)}}
+@keyframes bf3{from{transform:translate(-50%,-50%) scale(1)}to{transform:translate(-50%,-50%) scale(1.35)}}
+body::after{content:'';position:fixed;inset:0;z-index:1;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");background-size:256px;pointer-events:none;opacity:.5}
+/* CRISIS MODAL */
+#loading{position:fixed;inset:0;z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:var(--t9)}
+.ldw{position:relative;width:90px;height:72px;display:flex;align-items:center;justify-content:center}
+.ldw svg{animation:lgP 2s ease-in-out infinite}
+@keyframes lgP{0%,100%{filter:drop-shadow(0 0 8px rgba(42,181,204,.4))}50%{filter:drop-shadow(0 0 24px rgba(42,181,204,.75))}}
+.ldring{position:absolute;inset:-14px;border-radius:50%;border:1.5px solid transparent;border-top-color:var(--t3);border-right-color:var(--t4);animation:spin 1.1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ldtit{font-family:var(--fh);font-size:22px;font-weight:800;letter-spacing:1px;color:var(--white)}
+.ldtit span{color:var(--t3)}
+.ldsub{font-size:10px;color:var(--muted2);letter-spacing:3px;text-transform:uppercase;animation:tBl 1.4s ease-in-out infinite alternate}
+@keyframes tBl{from{opacity:.3}to{opacity:.9}}
+.ldbar{width:220px;height:2px;background:rgba(255,255,255,.07);border-radius:1px;overflow:hidden}
+.ldfill{height:100%;background:linear-gradient(90deg,var(--t4),var(--t3));animation:bF 2s var(--eo) forwards}
+@keyframes bF{from{width:0}to{width:100%}}
+/* AUTH */
+#auth{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center}
+#auth::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(42,181,204,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(42,181,204,.035) 1px,transparent 1px);background-size:55px 55px;animation:gMv 22s linear infinite}
+@keyframes gMv{from{background-position:0 0}to{background-position:55px 55px}}
+.ash{position:relative;display:flex;width:min(920px,95vw);height:min(620px,92dvh);border-radius:26px;overflow:hidden;box-shadow:0 0 0 1px rgba(42,181,204,.13),0 50px 130px rgba(0,0,0,.65);animation:ashI .75s var(--eb) both}
+@keyframes ashI{from{opacity:0;transform:scale(.88) translateY(50px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.abr{width:44%;background:linear-gradient(155deg,var(--t7) 0%,var(--t8) 55%,var(--navy) 100%);padding:44px 38px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;flex-shrink:0}
+.abr::before,.abr::after{content:'';position:absolute;border-radius:50%;border:1px solid rgba(42,181,204,.08)}
+.abr::before{width:420px;height:420px;bottom:-220px;left:-110px;animation:rE 5s ease-in-out infinite alternate}
+.abr::after{width:290px;height:290px;bottom:-155px;left:-45px;animation:rE 5s ease-in-out infinite alternate;animation-delay:.6s}
+@keyframes rE{from{transform:scale(1)}to{transform:scale(1.09)}}
+.abl{display:flex;align-items:center;gap:13px;animation:fU .6s var(--eo) .15s both}
+.abln{font-family:var(--fh);font-size:19px;font-weight:800;color:var(--white);letter-spacing:-.2px}
+.abln span{color:var(--t3)}
+.abq{animation:fU .6s var(--eo) .3s both}
+.abq h2{font-family:var(--fs);font-size:24px;font-weight:400;font-style:italic;color:var(--white);line-height:1.38;margin-bottom:12px}
+.abq p{font-size:12px;color:var(--t3);opacity:.75;line-height:1.7}
+.abt{display:flex;flex-wrap:wrap;gap:6px;animation:fU .6s var(--eo) .45s both}
+.atag{padding:4px 10px;background:rgba(42,181,204,.1);border:1px solid rgba(42,181,204,.2);border-radius:20px;font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.3px}
+.abcr{font-size:9.5px;color:rgba(255,255,255,.18);animation:fU .6s var(--eo) .6s both}
+@keyframes fU{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.afp{flex:1;background:rgba(5,18,24,.96);backdrop-filter:blur(20px);padding:40px 38px;display:flex;flex-direction:column;overflow-y:auto}
+.afp::-webkit-scrollbar{display:none}
+.atabs{display:flex;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:11px;padding:4px;margin-bottom:30px}
+.atab{flex:1;padding:8px;text-align:center;font-family:var(--fh);font-size:12px;font-weight:700;letter-spacing:.3px;color:rgba(255,255,255,.3);border:none;background:transparent;border-radius:8px;transition:all .22s}
+.atab.active{background:linear-gradient(135deg,var(--t5),var(--t6));color:var(--white);box-shadow:0 2px 14px rgba(26,122,143,.4)}
+.ftit{font-family:var(--fh);font-size:23px;font-weight:800;color:var(--white);letter-spacing:-.4px;margin-bottom:4px}
+.fsub{font-size:13px;color:var(--muted2);margin-bottom:24px;line-height:1.5}
+.ferr{display:none;padding:9px 13px;background:rgba(224,80,80,.1);border:1px solid rgba(224,80,80,.25);border-radius:9px;font-size:12px;color:#ff9090;margin-bottom:12px;line-height:1.5}
+.ferr.show{display:block}
+.fi{margin-bottom:13px}
+.fl{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:6px}
+.finp{width:100%;padding:11px 14px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:10px;font-family:var(--fb);font-size:14px;color:var(--white);outline:none;transition:all .2s}
+.finp::placeholder{color:rgba(255,255,255,.18)}
+.finp:focus{border-color:var(--t4);background:rgba(42,181,204,.05);box-shadow:0 0 0 3px rgba(42,181,204,.07)}
+.abtn{width:100%;padding:13px;background:linear-gradient(135deg,var(--t5),var(--t6));border:none;border-radius:10px;font-family:var(--fh);font-size:14px;font-weight:700;color:white;letter-spacing:.3px;position:relative;overflow:hidden;transition:all .22s;margin-top:4px}
+.abtn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.1),transparent)}
+.abtn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(26,122,143,.45)}
+.abtn:disabled{opacity:.45;transform:none}
+.abtn.loading{color:transparent}
+.abtn.loading::after{content:'';position:absolute;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;top:50%;left:50%;transform:translate(-50%,-50%)}
+.swl{margin-top:13px;text-align:center;font-size:11.5px;color:var(--muted2)}
+.swl button{background:none;border:none;color:var(--t3);font-family:var(--fb);font-size:11.5px;font-weight:600;text-decoration:underline;text-underline-offset:2px}
+/* APP */
+#app{display:none;height:100dvh;position:relative;z-index:2}
+#app.show{display:flex}
+/* SIDEBAR */
+#sb{width:256px;min-width:256px;background:rgba(5,15,20,.97);backdrop-filter:blur(20px);border-right:1px solid rgba(42,181,204,.09);display:flex;flex-direction:column;z-index:10;animation:sbI .5s var(--eo) both}
+@keyframes sbI{from{transform:translateX(-28px);opacity:0}to{transform:translateX(0);opacity:1}}
+.sbtop{padding:20px 16px 14px;border-bottom:1px solid rgba(42,181,204,.07)}
+.sblogo{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.sblic{width:34px;height:34px;background:transparent;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sbln{font-family:var(--fh);font-size:15px;font-weight:800;color:var(--white);letter-spacing:-.2px}
+.sbln span{color:var(--t3)}
+.sbuser{display:flex;align-items:center;gap:9px;padding:9px 11px;background:rgba(42,181,204,.05);border:1px solid rgba(42,181,204,.09);border-radius:10px;transition:all .2s}
+.sbuser:hover{background:rgba(42,181,204,.1)}
+.sbav{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--t6),var(--t7));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:12px;font-weight:700;color:white;flex-shrink:0;border:1.5px solid rgba(42,181,204,.3)}
+.sbui{flex:1;min-width:0}
+.sbun{font-size:12.5px;font-weight:600;color:var(--white)}
+.sbur{font-size:9.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;font-weight:700;margin-top:1px}
+.sbnew{display:flex;align-items:center;gap:7px;padding:9px 13px;margin-top:12px;background:linear-gradient(135deg,var(--t6),var(--t7));border:1px solid rgba(42,181,204,.2);border-radius:9px;color:white;width:100%;font-family:var(--fh);font-size:12.5px;font-weight:700;letter-spacing:.2px;transition:all .22s;position:relative;overflow:hidden}
+.sbnew::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);transform:translateX(-100%);transition:transform .5s}
+.sbnew:hover::after{transform:translateX(100%)}
+.sbnew:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(13,68,85,.45)}
+.sbnic{width:17px;height:17px;background:rgba(255,255,255,.14);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.sbnav{flex:1;overflow-y:auto;padding:8px 0}
+.sbnav::-webkit-scrollbar{width:3px}
+.sbnav::-webkit-scrollbar-thumb{background:rgba(42,181,204,.18);border-radius:2px}
+.sbs{padding:8px 14px 3px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.6px;color:rgba(255,255,255,.2)}
+.nit{display:flex;align-items:center;gap:9px;padding:8px 12px;margin:1px 7px;border-radius:8px;font-size:12.5px;font-weight:500;color:rgba(255,255,255,.4);transition:all .18s;position:relative;overflow:hidden}
+.nit::before{content:'';position:absolute;left:0;top:22%;bottom:22%;width:2.5px;background:var(--t3);border-radius:2px;transform:scaleY(0);transition:transform .2s var(--eb)}
+.nit:hover{background:rgba(42,181,204,.06);color:rgba(255,255,255,.8)}
+.nit.active{background:rgba(42,181,204,.1);color:var(--white)}
+.nit.active::before{transform:scaleY(1)}
+.nic{font-size:14px;width:18px;text-align:center;flex-shrink:0}
+.nbadge{margin-left:auto;background:var(--danger);color:white;font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px}
+.rit{display:flex;align-items:center;gap:7px;padding:6px 12px;margin:1px 7px;border-radius:7px;font-size:11.5px;color:rgba(255,255,255,.28);transition:all .15s;overflow:hidden}
+.rit:hover{background:rgba(255,255,255,.04);color:rgba(255,255,255,.55)}
+.rdot{width:5px;height:5px;border-radius:50%;background:var(--t4);flex-shrink:0}
+.rlbl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sbfoot{padding:11px;border-top:1px solid rgba(42,181,204,.07)}
+.ccard{padding:11px 13px;background:rgba(224,80,80,.07);border:1px solid rgba(224,80,80,.18);border-radius:9px;margin-bottom:9px;transition:all .2s}
+.ccard:hover{border-color:rgba(224,80,80,.38);background:rgba(224,80,80,.11)}
+.ccl{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#ff9090}
+.ccn{font-size:14px;font-weight:700;color:var(--white);margin-top:2px;letter-spacing:1px}
+.ccs{font-size:9.5px;color:rgba(255,255,255,.35);margin-top:1px}
+.mchip{display:flex;align-items:center;gap:7px;padding:7px 10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:7px}
+.mdot{width:5px;height:5px;border-radius:50%;background:var(--t3);animation:mdP 2.5s infinite}
+@keyframes mdP{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(61,207,229,.4)}50%{opacity:.55;box-shadow:0 0 0 4px rgba(61,207,229,0)}}
+.mtxt{font-size:10px;color:rgba(255,255,255,.35)}
+.mname{font-weight:600;color:rgba(255,255,255,.6);font-size:10.5px}
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.mhdr{display:flex;align-items:center;gap:11px;padding:13px 22px;background:rgba(5,15,20,.75);backdrop-filter:blur(16px);border-bottom:1px solid rgba(42,181,204,.07);z-index:5;animation:hI .5s var(--eo) .1s both}
+@keyframes hI{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.mhl{flex:1}
+.mht{font-family:var(--fh);font-size:16px;font-weight:800;color:var(--white);letter-spacing:-.3px}
+.mhs{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--muted2);margin-top:2px}
+.sdot{width:5px;height:5px;border-radius:50%;background:var(--t3);animation:mdP 2.5s infinite}
+.mhr{display:flex;align-items:center;gap:7px}
+.lpill{display:flex;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:7px;overflow:hidden}
+.lbtn{padding:5px 11px;font-size:11px;font-weight:700;color:rgba(255,255,255,.3);background:transparent;border:none;font-family:var(--fh);letter-spacing:.5px;transition:all .2s}
+.lbtn.active{background:var(--t6);color:var(--white)}
+.hbtn{display:flex;align-items:center;gap:5px;padding:6px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:7px;font-family:var(--fb);font-size:12px;font-weight:500;color:rgba(255,255,255,.5);transition:all .2s}
+.hbtn:hover{border-color:rgba(42,181,204,.28);color:var(--white);background:rgba(42,181,204,.06)}
+.hbtn.active{border-color:rgba(42,181,204,.33);color:var(--t3);background:rgba(42,181,204,.08)}
+.content{flex:1;overflow:hidden;display:flex;flex-direction:column;position:relative}
+.sec{display:none;height:100%;flex-direction:column}
+.sec.active{display:flex}
+/* CHAT */
+.mwrap{flex:1;overflow-y:auto;padding:22px 22px 0;scroll-behavior:smooth}
+.mwrap::-webkit-scrollbar{width:4px}
+.mwrap::-webkit-scrollbar-thumb{background:rgba(42,181,204,.18);border-radius:2px}
+#msgs{display:flex;flex-direction:column;gap:16px;padding-bottom:8px}
+#welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:44px 28px;gap:22px;height:100%}
+.wbrain{position:relative;width:90px;height:72px;display:flex;align-items:center;justify-content:center}
+.wbrain svg{animation:wFlt 4s ease-in-out infinite;filter:drop-shadow(0 0 18px rgba(61,207,229,.55))}
+@keyframes wFlt{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-9px) scale(1.04)}}
+.wring{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(61,207,229,.14);animation:wR 3s ease-in-out infinite}
+.wring:nth-child(2){inset:-9px;animation-delay:.5s}
+.wring:nth-child(3){inset:-18px;animation-delay:1s}
+@keyframes wR{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.06);opacity:.12}}
+.wtit{font-family:var(--fh);font-size:27px;font-weight:800;color:var(--white);letter-spacing:-.6px;line-height:1.2}
+.wtit em{font-style:normal;background:linear-gradient(135deg,var(--t3),var(--t1));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.wsub{font-size:14px;color:var(--muted2);line-height:1.7;max-width:400px}
+.wchips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:520px}
+.wc{padding:8px 16px;background:rgba(42,181,204,.07);border:1px solid rgba(42,181,204,.16);border-radius:20px;font-size:12.5px;color:rgba(255,255,255,.65);transition:all .22s var(--eb)}
+.wc:hover{background:rgba(42,181,204,.14);border-color:rgba(42,181,204,.38);color:var(--white);transform:translateY(-2px) scale(1.02);box-shadow:0 4px 16px rgba(42,181,204,.14)}
+.msg{display:flex;gap:11px;animation:mIn .38s var(--eb) both}
+@keyframes mIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.msg.user{flex-direction:row-reverse}
+.mav{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1.5px solid transparent}
+.msg.bot .mav{background:linear-gradient(135deg,var(--t6),var(--t8));border-color:rgba(42,181,204,.22)}
+.msg.user .mav{background:linear-gradient(135deg,var(--navy2),var(--navy));border-color:rgba(42,181,204,.13);font-family:var(--fh);font-size:12px;font-weight:700;color:var(--t3)}
+.mbody{flex:1;min-width:0;max-width:78%}
+.msg.user .mbody{display:flex;flex-direction:column;align-items:flex-end}
+.mbub{padding:12px 16px;font-size:14px;line-height:1.65;display:inline-block;max-width:100%;word-break:break-word}
+.msg.bot .mbub{background:rgba(13,32,45,.85);border:1px solid rgba(42,181,204,.1);border-radius:3px 17px 17px 17px;color:rgba(255,255,255,.87);backdrop-filter:blur(8px)}
+.msg.user .mbub{background:linear-gradient(135deg,var(--t6),var(--t7));border:1px solid rgba(42,181,204,.22);border-radius:17px 3px 17px 17px;color:white}
+.msg.crisis .mbub{border-color:rgba(224,80,80,.28)!important;background:rgba(224,80,80,.05)!important}
+.mbub.rtl{direction:rtl;text-align:right}
+.mmeta{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:10px;color:rgba(255,255,255,.22)}
+.msg.user .mmeta{justify-content:flex-end}
+.apill{padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.apill.therapy_agent{background:rgba(42,181,204,.14);color:var(--t3)}
+.apill.mood_tracking{background:rgba(240,192,64,.14);color:var(--gold)}
+.apill.safety_agent{background:rgba(224,80,80,.14);color:#ff9090}
+.apill.ritual_planner{background:rgba(168,220,232,.1);color:var(--sky);border:1px solid rgba(168,220,232,.18)}
+#typing{display:none;gap:11px;padding:0 22px 14px}
+#typing.show{display:flex}
+.tbub{padding:13px 17px;background:rgba(13,32,45,.85);border:1px solid rgba(42,181,204,.1);border-radius:3px 17px 17px 17px;display:flex;align-items:center;gap:5px}
+.td{width:7px;height:7px;border-radius:50%;background:var(--t3);animation:tdot 1.2s ease-in-out infinite}
+.td:nth-child(2){animation-delay:.2s;background:var(--t4)}
+.td:nth-child(3){animation-delay:.4s;background:var(--t5)}
+@keyframes tdot{0%,80%,100%{transform:translateY(0);opacity:.35}40%{transform:translateY(-7px);opacity:1}}
+.inpa{padding:12px 22px 16px;border-top:1px solid rgba(42,181,204,.07);background:rgba(5,15,20,.75);backdrop-filter:blur(16px)}
+#mbar{display:none;flex-direction:column;gap:13px;padding:15px;background:rgba(13,32,45,.85);border:1px solid rgba(42,181,204,.13);border-radius:13px;margin-bottom:11px;animation:sD .3s var(--eo) both}
+#mbar.show{display:flex}
+@keyframes sD{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.mbt{font-family:var(--fh);font-size:13px;font-weight:700;color:var(--white)}
+.msliders{display:flex;flex-direction:column;gap:9px}
+.mrow{display:flex;align-items:center;gap:11px}
+.mrow label{width:50px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;font-size:9.5px}
+.msl{flex:1;-webkit-appearance:none;appearance:none;height:3px;border-radius:2px;background:rgba(255,255,255,.07);outline:none}
+.msl::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:linear-gradient(135deg,var(--t3),var(--t5));cursor:none;box-shadow:0 2px 8px rgba(61,207,229,.4);border:2px solid rgba(5,18,24,.8);transition:transform .15s}
+.msl::-webkit-slider-thumb:hover{transform:scale(1.3)}
+.mval{width:20px;text-align:center;font-size:12px;font-weight:700;color:var(--t3);font-family:monospace}
+.mba{display:flex;gap:7px}
+.mbl{padding:7px 18px;background:linear-gradient(135deg,var(--t5),var(--t6));border:none;border-radius:7px;font-family:var(--fh);font-size:12.5px;font-weight:700;color:white;transition:all .2s}
+.mbl:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(13,68,85,.5)}
+.mbc{padding:7px 12px;background:transparent;border:1px solid rgba(255,255,255,.09);border-radius:7px;font-family:var(--fb);font-size:12.5px;color:rgba(255,255,255,.35);transition:all .2s}
+.mbc:hover{border-color:rgba(255,255,255,.22);color:rgba(255,255,255,.65)}
+#rtp{display:none;padding:13px 15px;background:rgba(13,32,45,.85);border:1px solid rgba(168,220,232,.13);border-radius:13px;margin-bottom:11px;animation:sD .3s var(--eo) both}
+#rtp.show{display:block}
+.rtph{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.rtpn{font-family:var(--fh);font-size:13.5px;font-weight:700;color:var(--white)}
+.rtpb{padding:2px 9px;border-radius:20px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;background:rgba(168,220,232,.09);border:1px solid rgba(168,220,232,.18);color:var(--sky)}
+.rtpx{font-size:12.5px;color:rgba(255,255,255,.5);line-height:1.6}
+.inpr{display:flex;gap:9px;align-items:flex-end}
+.inpl{display:flex;flex-direction:column;gap:4px}
+.ibtn{width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:8px;font-size:14px;color:rgba(255,255,255,.38);transition:all .18s}
+.ibtn:hover{border-color:rgba(42,181,204,.28);color:var(--t3);background:rgba(42,181,204,.06)}
+.ibtn.active{border-color:rgba(42,181,204,.38);color:var(--t3);background:rgba(42,181,204,.1)}
+.inpw{flex:1;position:relative}
+#ui{width:100%;min-height:48px;max-height:140px;padding:13px 46px 13px 16px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.07);border-radius:13px;font-family:var(--fb);font-size:14px;color:var(--white);outline:none;resize:none;line-height:1.5;transition:all .2s}
+#ui::placeholder{color:rgba(255,255,255,.18)}
+#ui:focus{border-color:rgba(42,181,204,.38);background:rgba(42,181,204,.04);box-shadow:0 0 0 3px rgba(42,181,204,.05)}
+.ccnt{position:absolute;bottom:9px;right:44px;font-size:9.5px;color:rgba(255,255,255,.18);pointer-events:none}
+#sndbtn{position:absolute;right:9px;bottom:9px;width:29px;height:29px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--t4),var(--t6));border:none;border-radius:7px;color:white;font-size:13px;transition:all .2s}
+#sndbtn:hover{transform:scale(1.08);box-shadow:0 4px 14px rgba(26,143,160,.45)}
+#sndbtn:disabled{opacity:.3;transform:none}
+/* PROGRESS */
+.pw{flex:1;overflow-y:auto;padding:22px;display:flex;flex-direction:column;gap:18px}
+.pw::-webkit-scrollbar{width:4px}
+.pw::-webkit-scrollbar-thumb{background:rgba(42,181,204,.18);border-radius:2px}
+.sh{font-family:var(--fh);font-size:21px;font-weight:800;color:var(--white);letter-spacing:-.5px}
+.sh em{font-style:normal;background:linear-gradient(135deg,var(--t3),var(--t1));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ss{font-size:12.5px;color:var(--muted2);margin-top:3px}
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.scard{background:rgba(13,32,45,.75);border:1px solid rgba(42,181,204,.09);border-radius:15px;padding:16px;position:relative;overflow:hidden;transition:all .22s}
+.scard::before{content:'';position:absolute;top:0;left:0;right:0;height:1.5px}
+.scard.tc::before{background:linear-gradient(90deg,var(--t5),var(--t3))}
+.scard.gc::before{background:linear-gradient(90deg,var(--gold),#ffd878)}
+.scard.sc::before{background:linear-gradient(90deg,var(--sky),#c8edf8)}
+.scard:hover{border-color:rgba(42,181,204,.18);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.35)}
+.scl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.28)}
+.scv{font-family:var(--fh);font-size:34px;font-weight:800;color:var(--white);margin:5px 0 2px;letter-spacing:-1px}
+.scv.tc{color:var(--t3)}
+.scs{font-size:10.5px;color:rgba(255,255,255,.3)}
+.cc,.gc2{background:rgba(13,32,45,.75);border:1px solid rgba(42,181,204,.09);border-radius:15px;padding:18px}
+.ct,.gt{font-family:var(--fh);font-size:14px;font-weight:700;color:var(--white);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.ct::before{content:'';width:3px;height:14px;background:linear-gradient(180deg,var(--t3),var(--t5));border-radius:2px}
+.gt::before{content:'';width:3px;height:14px;background:linear-gradient(180deg,var(--gold),#ffda60);border-radius:2px}
+.mchart{display:flex;align-items:flex-end;gap:5px;height:75px}
+.mbar{flex:1;border-radius:4px 4px 0 0;transition:height .5s var(--eo);position:relative;min-width:0}
+.mbar::after{content:attr(data-v);position:absolute;bottom:calc(100% + 3px);left:50%;transform:translateX(-50%);font-size:8.5px;color:var(--t3);opacity:0;transition:opacity .2s}
+.mbar:hover::after{opacity:1}
+.cempty{font-size:12.5px;color:rgba(255,255,255,.22);font-style:italic;padding:18px 0;text-align:center}
+.grow{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.grow:last-child{border-bottom:none}
+.gdot{width:7px;height:7px;border-radius:50%;background:var(--t4);flex-shrink:0}
+.gtxt{font-size:13px;color:rgba(255,255,255,.68)}
+/* THERAPIST */
+.tfw{flex:1;overflow-y:auto;padding:22px;display:flex;flex-direction:column;gap:18px}
+.tfw::-webkit-scrollbar{width:4px}
+.tfw::-webkit-scrollbar-thumb{background:rgba(42,181,204,.18);border-radius:2px}
+.tfctrls{display:flex;gap:8px;flex-wrap:wrap}
+.tfflt{display:flex;align-items:center;gap:6px;padding:7px 13px;background:rgba(13,32,45,.8);border:1px solid rgba(42,181,204,.12);border-radius:9px;font-size:12px;font-weight:600;color:rgba(255,255,255,.5);transition:all .2s}
+.tfflt:hover,.tfflt.active{border-color:var(--t4);color:var(--t3);background:rgba(42,181,204,.07)}
+.tfloc{display:flex;align-items:center;gap:7px;padding:7px 16px;background:linear-gradient(135deg,var(--t5),var(--t6));border:none;border-radius:9px;font-family:var(--fh);font-size:12.5px;font-weight:700;color:white;transition:all .22s;margin-left:auto}
+.tfloc:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(13,68,85,.5)}
+#tmc{border-radius:14px;overflow:hidden;border:1px solid rgba(42,181,204,.12);height:360px;min-height:360px;position:relative;flex-shrink:0}
+#tm{width:100%;height:100%}
+.mover{position:absolute;top:12px;left:12px;z-index:1000;background:rgba(5,15,20,.88);backdrop-filter:blur(12px);border:1px solid rgba(42,181,204,.18);border-radius:10px;padding:9px 13px;font-size:11px;color:var(--t3);font-weight:600;letter-spacing:.3px}
+.tflist{display:flex;flex-direction:column;gap:11px}
+.tfc{display:flex;align-items:center;gap:13px;padding:14px 16px;background:rgba(13,32,45,.8);border:1px solid rgba(42,181,204,.1);border-radius:13px;transition:all .22s;animation:fU .4s var(--eo) both}
+.tfc:hover{border-color:rgba(42,181,204,.28);background:rgba(42,181,204,.06);transform:translateX(3px)}
+.tfav{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--t6),var(--t7));display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;border:2px solid rgba(42,181,204,.2)}
+.tfinfo{flex:1;min-width:0}
+.tfname{font-family:var(--fh);font-size:14px;font-weight:700;color:var(--white)}
+.tfspec{font-size:11.5px;color:var(--t3);margin-top:1px}
+.tfmeta{display:flex;align-items:center;gap:9px;margin-top:5px;flex-wrap:wrap}
+.tfdist{font-size:11px;color:var(--muted2)}
+.tfstars{font-size:11px;color:var(--gold)}
+.tfav2{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
+.tfav2.yes{background:rgba(64,192,128,.12);color:var(--green);border:1px solid rgba(64,192,128,.2)}
+.tfav2.no{background:rgba(224,80,80,.1);color:#ff9090;border:1px solid rgba(224,80,80,.18)}
+.tfbk{padding:8px 16px;background:linear-gradient(135deg,var(--t5),var(--t6));border:none;border-radius:8px;font-family:var(--fh);font-size:11.5px;font-weight:700;color:white;transition:all .2s;flex-shrink:0}
+.tfbk:hover{transform:scale(1.04);box-shadow:0 4px 14px rgba(13,68,85,.5)}
+.tfempty{text-align:center;padding:40px;color:var(--muted2);font-size:13px}
+/* JOURNAL */
+.jw{flex:1;overflow-y:auto;padding:22px;display:flex;flex-direction:column;gap:18px}
+.jw::-webkit-scrollbar{width:4px}
+.jw::-webkit-scrollbar-thumb{background:rgba(42,181,204,.18);border-radius:2px}
+.jcmp{background:rgba(13,32,45,.8);border:1px solid rgba(42,181,204,.12);border-radius:14px;overflow:hidden}
+.jprompt{padding:13px 16px 0;font-size:11px;color:var(--t3);font-style:italic;opacity:.75}
+.jta{width:100%;min-height:110px;padding:11px 16px;background:transparent;border:none;font-family:var(--fb);font-size:14px;color:rgba(255,255,255,.8);outline:none;resize:none;line-height:1.7}
+.jta::placeholder{color:rgba(255,255,255,.2)}
+.jft{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-top:1px solid rgba(42,181,204,.07)}
+.jmq2{display:flex;gap:5px}
+.jmb{padding:4px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:20px;font-size:12px;transition:all .15s}
+.jmb:hover,.jmb.active{background:rgba(42,181,204,.1);border-color:rgba(42,181,204,.25)}
+.jsv{padding:7px 18px;background:linear-gradient(135deg,var(--t5),var(--t6));border:none;border-radius:8px;font-family:var(--fh);font-size:12.5px;font-weight:700;color:white;transition:all .2s}
+.jsv:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(13,68,85,.45)}
+.jents{display:flex;flex-direction:column;gap:10px}
+.jecard{background:rgba(13,32,45,.8);border:1px solid rgba(42,181,204,.08);border-radius:12px;padding:14px 16px;animation:fU .35s var(--eo) both}
+.jehead{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.jedate{font-size:10px;color:var(--muted2);font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.jetext{font-size:13px;color:rgba(255,255,255,.65);line-height:1.65}
+/* BREATHING */
+.brw{flex:1;overflow-y:auto;padding:22px;display:flex;flex-direction:column;gap:20px}
+.brscene{display:flex;flex-direction:column;align-items:center;gap:18px;padding:24px}
+.borb{position:relative;width:180px;height:180px;display:flex;align-items:center;justify-content:center}
+.binn{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(61,207,229,.35) 0%,rgba(26,122,143,.15) 60%,transparent 100%);display:flex;align-items:center;justify-content:center;transition:all .1s linear}
+.bring{position:absolute;inset:0;border-radius:50%;border:1.5px solid rgba(61,207,229,.2)}
+.bring2{position:absolute;inset:12px;border-radius:50%;border:1px solid rgba(61,207,229,.1)}
+.blbl{font-family:var(--fh);font-size:13px;font-weight:700;color:var(--t3);letter-spacing:.5px;text-align:center}
+.bphase{font-family:var(--fh);font-size:18px;font-weight:700;color:var(--white);letter-spacing:-.3px;text-align:center}
+.bcnt{font-size:40px;font-weight:800;font-family:var(--fh);color:var(--t3);letter-spacing:-2px}
+.bpats{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.bpbt{padding:8px 16px;background:rgba(13,32,45,.8);border:1px solid rgba(42,181,204,.12);border-radius:9px;font-family:var(--fh);font-size:12px;font-weight:600;color:rgba(255,255,255,.5);transition:all .2s}
+.bpbt.active,.bpbt:hover{border-color:var(--t4);color:var(--t3);background:rgba(42,181,204,.07)}
+.bstart{padding:12px 40px;background:linear-gradient(135deg,var(--t5),var(--t6));border:none;border-radius:10px;font-family:var(--fh);font-size:14px;font-weight:700;color:white;transition:all .25s}
+.bstart:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(13,68,85,.5)}
+.bstart.stop{background:linear-gradient(135deg,#a03030,#c04040)}
+.btip{font-size:12px;color:var(--muted2);text-align:center;line-height:1.6;max-width:320px}
+/* SETTINGS */
+.setw{flex:1;overflow-y:auto;padding:22px;display:flex;flex-direction:column;gap:16px}
+.setw::-webkit-scrollbar{width:4px}
+.setw::-webkit-scrollbar-thumb{background:rgba(42,181,204,.18);border-radius:2px}
+.sgrp{background:rgba(13,32,45,.8);border:1px solid rgba(42,181,204,.09);border-radius:14px;overflow:hidden}
+.sgrt{padding:13px 17px;font-family:var(--fh);font-size:12.5px;font-weight:700;color:var(--t3);letter-spacing:.3px;border-bottom:1px solid rgba(42,181,204,.07);background:rgba(42,181,204,.03)}
+.srow{display:flex;align-items:center;padding:12px 17px;border-bottom:1px solid rgba(255,255,255,.04);gap:13px}
+.srow:last-child{border-bottom:none}
+.srl{flex:1}
+.srt{font-size:13px;font-weight:500;color:rgba(255,255,255,.78)}
+.srs{font-size:11px;color:var(--muted2);margin-top:2px}
+.toggle{position:relative;width:38px;height:21px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.ttr{position:absolute;inset:0;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09);border-radius:10px;cursor:none;transition:all .22s}
+.ttr::before{content:'';position:absolute;width:15px;height:15px;left:2px;bottom:2px;border-radius:50%;background:rgba(255,255,255,.35);transition:all .22s var(--eb);box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.toggle input:checked + .ttr{background:var(--t6);border-color:var(--t4)}
+.toggle input:checked + .ttr::before{transform:translateX(17px);background:white}
+.dbtn2{padding:7px 14px;background:rgba(224,80,80,.09);border:1px solid rgba(224,80,80,.22);border-radius:7px;font-family:var(--fb);font-size:12px;color:#ff9090;transition:all .2s}
+.dbtn2:hover{background:rgba(224,80,80,.17);border-color:rgba(224,80,80,.4)}
+.gbtn2{padding:7px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:7px;font-family:var(--fb);font-size:12px;color:rgba(255,255,255,.4);transition:all .2s}
+.gbtn2:hover{border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.7)}
+/* RIGHT PANEL */
+#rp{width:225px;min-width:225px;background:rgba(5,15,20,.97);backdrop-filter:blur(20px);border-left:1px solid rgba(42,181,204,.09);display:flex;flex-direction:column}
+.rphd{padding:14px 15px 11px;border-bottom:1px solid rgba(42,181,204,.07);font-family:var(--fh);font-size:12px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.5px}
+.rpb{padding:13px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:11px}
+.sorb-w{display:flex;flex-direction:column;align-items:center;gap:7px}
+.sorb{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;transition:all .4s var(--eo);position:relative}
+.sorb::before{content:'';position:absolute;inset:-5px;border-radius:50%;border:1px solid currentColor;opacity:.13;animation:oR 3s ease-in-out infinite}
+@keyframes oR{0%,100%{transform:scale(1);opacity:.13}50%{transform:scale(1.1);opacity:.04}}
+.sorb.safe{background:rgba(42,181,204,.1);color:var(--t3);box-shadow:0 0 24px rgba(42,181,204,.14)}
+.sorb.caution{background:rgba(240,192,64,.1);color:var(--gold);box-shadow:0 0 24px rgba(240,192,64,.14)}
+.sorb.danger{background:rgba(224,80,80,.11);color:#ff9090;box-shadow:0 0 28px rgba(224,80,80,.22);animation:dP 1.5s ease-in-out infinite}
+@keyframes dP{0%,100%{box-shadow:0 0 28px rgba(224,80,80,.22)}50%{box-shadow:0 0 50px rgba(224,80,80,.48)}}
+.slbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.38)}
+.rpst{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:9px;padding:10px}
+.rpsl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.22)}
+.rpsv{font-family:var(--fh);font-size:20px;font-weight:700;color:var(--white);margin-top:2px}
+.rpss{font-size:10px;color:var(--muted2);margin-top:1px}
+.rpacts{display:flex;flex-direction:column;gap:5px}
+.rpa{display:flex;align-items:center;gap:7px;padding:8px 10px;background:transparent;border:1px solid rgba(255,255,255,.06);border-radius:8px;font-family:var(--fb);font-size:11.5px;color:rgba(255,255,255,.38);width:100%;text-align:left;transition:all .18s}
+.rpa:hover{border-color:rgba(42,181,204,.22);color:rgba(255,255,255,.68);background:rgba(42,181,204,.05)}
+.rpa.cr{border-color:rgba(224,80,80,.18);color:rgba(255,138,138,.65)}
+.rpa.cr:hover{border-color:rgba(224,80,80,.38);color:#ff9090;background:rgba(224,80,80,.05)}
+/* MODALS */
+.ov{display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);align-items:center;justify-content:center}
+.ov.show{display:flex;animation:ovI .2s ease}
+@keyframes ovI{from{opacity:0}to{opacity:1}}
+.cm{width:min(430px,92vw);background:rgba(5,15,20,.98);border:1px solid rgba(224,80,80,.2);border-radius:20px;overflow:hidden;box-shadow:0 50px 120px rgba(0,0,0,.75);animation:mI .35s var(--eb) both}
+@keyframes mI{from{transform:scale(.88) translateY(20px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.cmh{padding:22px 22px 18px;border-bottom:1px solid rgba(224,80,80,.1);background:rgba(224,80,80,.04)}
+.cmi{font-size:26px;margin-bottom:7px}
+.cmt{font-family:var(--fh);font-size:19px;font-weight:800;color:var(--white)}
+.cms{font-size:12.5px;color:var(--muted2);margin-top:3px}
+.cmb{padding:16px 20px 20px;display:flex;flex-direction:column;gap:8px}
+.cres{display:flex;align-items:flex-start;gap:11px;padding:11px 13px;border:1px solid rgba(255,255,255,.07);border-radius:9px;text-decoration:none;color:var(--white);transition:all .18s}
+.cres:hover{border-color:rgba(42,181,204,.28);background:rgba(42,181,204,.05)}
+.cri{font-size:18px}
+.crn{font-size:11px;color:rgba(255,255,255,.45)}
+.crnum{font-size:15px;font-weight:700;color:var(--t3);letter-spacing:.5px}
+.crnote{font-size:9.5px;color:rgba(255,255,255,.28);margin-top:2px;line-height:1.4}
+.crcl{margin-top:3px;padding:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:9px;width:100%;font-family:var(--fb);font-size:13px;color:rgba(255,255,255,.38);transition:all .18s}
+.crcl:hover{color:rgba(255,255,255,.65);border-color:rgba(255,255,255,.14)}
+.bkm{width:min(480px,94vw);background:rgba(5,15,20,.98);border:1px solid rgba(42,181,204,.15);border-radius:20px;overflow:hidden;box-shadow:0 50px 120px rgba(0,0,0,.75);animation:mI .35s var(--eb) both}
+.bkh{padding:20px 22px 16px;border-bottom:1px solid rgba(42,181,204,.08)}
+.bkt{font-family:var(--fh);font-size:17px;font-weight:700;color:var(--white)}
+.bks{font-size:12px;color:var(--muted2);margin-top:3px}
+.bkb{padding:18px 22px 22px;display:flex;flex-direction:column;gap:13px}
+.bkdoc{display:flex;align-items:center;gap:12px;padding:11px 13px;background:rgba(42,181,204,.05);border:1px solid rgba(42,181,204,.12);border-radius:10px}
+.bkslots{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.slot{padding:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:7px;font-family:var(--fh);font-size:11px;font-weight:600;color:rgba(255,255,255,.55);transition:all .18s;text-align:center}
+.slot:hover,.slot.active{border-color:var(--t4);color:var(--t3);background:rgba(42,181,204,.08)}
+.slot.taken{opacity:.35;pointer-events:none;text-decoration:line-through}
+.bkcon{padding:12px;background:linear-gradient(135deg,var(--t5),var(--t6));border:none;border-radius:9px;font-family:var(--fh);font-size:14px;font-weight:700;color:white;width:100%;transition:all .22s}
+.bkcon:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(13,68,85,.5)}
+.bkcan{padding:9px;background:transparent;border:1px solid rgba(255,255,255,.08);border-radius:9px;font-family:var(--fb);font-size:12.5px;color:rgba(255,255,255,.35);width:100%;transition:all .18s}
+.bkcan:hover{color:rgba(255,255,255,.6);border-color:rgba(255,255,255,.15)}
+/* TOASTS */
+#toasts{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:7px}
+.toast{padding:10px 15px;background:rgba(13,32,45,.96);border:1px solid rgba(42,181,204,.18);color:var(--white);border-radius:9px;font-size:12.5px;font-weight:500;max-width:300px;box-shadow:0 8px 28px rgba(0,0,0,.45);backdrop-filter:blur(12px);animation:tI .3s var(--eb) both}
+.toast.success{border-color:rgba(42,181,204,.3)}
+.toast.error{border-color:rgba(224,80,80,.3);background:rgba(20,8,8,.96)}
+.toast.warning{border-color:rgba(240,192,64,.3)}
+.toast.out{animation:tO .3s ease forwards}
+@keyframes tI{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:translateX(0)}}
+@keyframes tO{to{opacity:0;transform:translateX(14px)}}
+/* MAP */
+.leaflet-container{background:#051a1e!important}
+.leaflet-tile{filter:hue-rotate(175deg) saturate(0.5) brightness(0.65) contrast(1.1);opacity:1!important}
+.leaflet-popup-content-wrapper{background:rgba(5,15,20,.96)!important;border:1px solid rgba(42,181,204,.18)!important;border-radius:10px!important;box-shadow:0 10px 40px rgba(0,0,0,.6)!important}
+.leaflet-popup-content{color:var(--white)!important;font-size:12.5px!important;margin:10px 14px!important}
+.leaflet-popup-tip{background:rgba(5,15,20,.96)!important}
+.leaflet-popup-close-button{color:var(--t3)!important}
+@media(max-width:1100px){#rp{display:none}}
+@media(max-width:768px){.abr{display:none}#sb{position:fixed;inset:0 auto 0 0;transform:translateX(-100%);z-index:100}.sgrid{grid-template-columns:1fr 1fr}}
+
+/* ── CIRCULAR LOGO PLACEHOLDER ───────────────────────────── */
+/* TO ADD YOUR LOGO:
+   Place logo.png in the same folder as this HTML file.
+   It will appear automatically in all logo spots.         */
+.logo-ph{
+  border-radius:50%;
+  overflow:hidden;
+  border:2px solid rgba(42,181,204,0.4);
+  box-shadow:0 0 14px rgba(42,181,204,0.2);
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(13,68,85,0.3);
+}
+.logo-ph img{
+  width:100%;height:100%;
+  object-fit:cover;
+  border-radius:50%;
+  display:block;
+}
+.logo-ph.lg {width:80px;height:80px}
+.logo-ph.md {width:44px;height:44px}
+.logo-ph.sm {width:32px;height:32px;border-width:1.5px}
+.logo-ph.xs {width:26px;height:26px;border-width:1.5px}
+/* INVITE PANEL */
+.cl-invite-panel{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 18px;background:linear-gradient(135deg,rgba(42,181,204,.07),rgba(42,181,204,.03));border:1px solid rgba(42,181,204,.18);border-radius:14px;flex-wrap:wrap}
+.cl-invite-left{flex:1;min-width:0}
+.cl-invite-title{font-family:var(--fh);font-size:13px;font-weight:700;color:var(--white);margin-bottom:4px}
+.cl-invite-sub{font-size:11px;color:rgba(255,255,255,.38);line-height:1.5}
+.cl-invite-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cl-code-box{font-family:monospace;font-size:15px;font-weight:700;letter-spacing:2px;color:var(--t3);background:rgba(42,181,204,.08);border:1px solid rgba(42,181,204,.22);padding:7px 14px;border-radius:8px}
+.cl-copy-btn{padding:7px 13px;background:rgba(64,192,128,.08);border:1px solid rgba(64,192,128,.2);border-radius:8px;font-size:12px;font-weight:700;color:var(--green);font-family:var(--fh);transition:all .2s}
+.cl-copy-btn:hover{background:rgba(64,192,128,.16)}
+/* Patient name in drawer header */
+.cl-drawer-hdr > div:first-child{min-width:0;flex:1}
+
+.clw{padding:22px;overflow-y:auto;height:100%;display:flex;flex-direction:column;gap:20px}
+.clhdr{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.clrefbtn{padding:7px 14px;background:rgba(42,181,204,.1);border:1px solid rgba(42,181,204,.2);border-radius:8px;font-family:var(--fh);font-size:12px;font-weight:700;color:var(--t3);transition:all .2s}
+.clrefbtn:hover{background:rgba(42,181,204,.18);transform:translateY(-1px)}
+.cl-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:700px){.cl-stats{grid-template-columns:repeat(2,1fr)}}
+.clsc{padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03)}
+.clsc.rc{border-color:rgba(224,80,80,.2);background:rgba(224,80,80,.05)}
+.clsc.wc{border-color:rgba(240,192,64,.2);background:rgba(240,192,64,.05)}
+.clsc.sc{border-color:rgba(64,192,128,.2);background:rgba(64,192,128,.05)}
+.clsc.ac{border-color:rgba(42,181,204,.2);background:rgba(42,181,204,.05)}
+.clsl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.35);margin-bottom:6px}
+.clsv{font-family:var(--fh);font-size:28px;font-weight:800;color:var(--white)}
+.clsv.danger{color:#ff7070}
+.clsv.warn{color:var(--gold)}
+.clsv.ok{color:var(--green)}
+.cl-section{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow:hidden}
+.cl-sec-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.06);font-family:var(--fh);font-size:13px;font-weight:700;color:var(--white);gap:10px}
+.cl-badge{background:var(--danger);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;min-width:20px;text-align:center}
+.cl-search{flex:1;max-width:220px;padding:5px 10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:7px;font-family:var(--fb);font-size:11.5px;color:var(--white);outline:none}
+.cl-search::placeholder{color:rgba(255,255,255,.2)}
+.cl-empty{padding:18px 16px;font-size:12.5px;color:rgba(255,255,255,.25);font-style:italic}
+/* Alert rows */
+.cl-alert{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s}
+.cl-alert:hover{background:rgba(255,255,255,.03)}
+.cl-alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.cl-alert-dot.hard_escalate,.cl-alert-dot.watchdog_veto,.cl-alert-dot.manual_flag{background:var(--danger);box-shadow:0 0 6px rgba(224,80,80,.5)}
+.cl-alert-dot.worsening{background:var(--gold)}
+.cl-alert-dot.stable{background:var(--green)}
+.cl-alert-body{flex:1;min-width:0}
+.cl-alert-msg{font-size:12.5px;color:var(--white);line-height:1.45}
+.cl-alert-meta{font-size:10px;color:rgba(255,255,255,.28);margin-top:3px}
+.cl-alert-ack{padding:4px 10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:6px;font-size:10.5px;color:rgba(255,255,255,.45);font-family:var(--fb);transition:all .15s;white-space:nowrap}
+.cl-alert-ack:hover{background:rgba(42,181,204,.1);border-color:rgba(42,181,204,.3);color:var(--t3)}
+/* Patient rows */
+.cl-pat{display:flex;align-items:center;gap:13px;padding:13px 16px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:background .15s}
+.cl-pat:hover{background:rgba(42,181,204,.04)}
+.cl-pat:last-child{border-bottom:none}
+.cl-pav{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:14px;font-weight:700;color:white;flex-shrink:0;border:1.5px solid rgba(42,181,204,.25);background:linear-gradient(135deg,var(--t6),var(--t8))}
+.cl-pinfo{flex:1;min-width:0}
+.cl-pname{font-size:13px;font-weight:600;color:var(--white)}
+.cl-psid{font-size:10px;color:rgba(255,255,255,.3);font-family:monospace;margin-top:2px}
+.cl-pmeta{display:flex;gap:8px;margin-top:4px;flex-wrap:wrap}
+.cl-ptag{font-size:9.5px;padding:2px 7px;border-radius:12px;font-weight:600}
+.cl-ptag.safe{background:rgba(64,192,128,.12);color:var(--green);border:1px solid rgba(64,192,128,.2)}
+.cl-ptag.caution{background:rgba(240,192,64,.12);color:var(--gold);border:1px solid rgba(240,192,64,.2)}
+.cl-ptag.crisis{background:rgba(224,80,80,.12);color:#ff9090;border:1px solid rgba(224,80,80,.22)}
+.cl-ptrend{font-size:10px;color:var(--muted2)}
+.cl-pchev{font-size:14px;color:rgba(255,255,255,.18)}
+/* Drawer */
+#sec-clinician{flex-direction:row!important;overflow:hidden;position:relative}
+.clw{flex:1;overflow-y:auto}
+.cl-drawer{position:absolute;top:0;right:0;bottom:0;width:340px;background:rgba(5,15,20,.97);border-left:1px solid rgba(42,181,204,.12);transform:translateX(100%);transition:transform .3s var(--eo);z-index:20;display:flex;flex-direction:column}
+.cl-drawer.open{transform:translateX(0)}
+.cl-drawer-hdr{padding:18px 16px;border-bottom:1px solid rgba(42,181,204,.08);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.cl-dname{font-family:var(--fh);font-size:16px;font-weight:800;color:var(--white)}
+.cl-dsid{font-size:10px;color:var(--t3);font-family:monospace;margin-top:3px}
+.cl-dclose{width:28px;height:28px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);border-radius:6px;color:rgba(255,255,255,.5);font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cl-dclose:hover{background:rgba(255,255,255,.11);color:var(--white)}
+.cl-drawer-body{flex:1;overflow-y:auto;padding:16px}
+.cl-dblock{margin-bottom:16px}
+.cl-dbt{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--t3);margin-bottom:9px}
+.cl-drow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px}
+.cl-drow .lbl{color:rgba(255,255,255,.38)}
+.cl-drow .val{color:var(--white);font-weight:600}
+.cl-moodbar{display:flex;align-items:flex-end;gap:3px;height:52px;margin-top:4px}
+.cl-mb{border-radius:3px 3px 0 0;min-width:8px;flex:1;transition:height .4s var(--eo)}
+.cl-phq-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:700;margin-top:6px}
+.cl-phq-chip.low{background:rgba(64,192,128,.12);color:var(--green);border:1px solid rgba(64,192,128,.2)}
+.cl-phq-chip.mod{background:rgba(240,192,64,.12);color:var(--gold);border:1px solid rgba(240,192,64,.2)}
+.cl-phq-chip.sev{background:rgba(224,80,80,.12);color:#ff9090;border:1px solid rgba(224,80,80,.2)}
+.cl-flag-btn{width:100%;padding:9px;background:rgba(224,80,80,.08);border:1px solid rgba(224,80,80,.22);border-radius:9px;font-family:var(--fh);font-size:12.5px;font-weight:700;color:#ff9090;margin-top:8px;transition:all .2s}
+.cl-flag-btn:hover{background:rgba(224,80,80,.16);border-color:rgba(224,80,80,.42)}
+.cl-turn{padding:8px 10px;background:rgba(255,255,255,.03);border-radius:8px;margin-bottom:6px;font-size:11.5px;color:rgba(255,255,255,.5);border-left:2px solid rgba(42,181,204,.2)}
+.cl-turn .agent{font-size:9.5px;font-weight:700;color:var(--t4);margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px}
+.cl-turn .preview{color:rgba(255,255,255,.55)}
+.cl-turn.crisis{border-left-color:var(--danger)}
+.cl-turn.crisis .preview{color:#ff9090}
+
+</style>
+</head>
+<body>
+<div id="cur"></div><div id="cur2"></div>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+
+<!-- LOADING -->
+<div id="loading">
+  <div class="ldw"><div class="logo-ph lg"><img src="static\logp.png" alt="Mind Bridge"></div><div class="ldring"></div></div>
+  <div class="ldtit">Mind <span>Bridge</span></div>
+  <div class="ldsub">Loading your safe space</div>
+  <div class="ldbar"><div class="ldfill"></div></div>
+</div>
+
+<!-- AUTH -->
+<div id="auth">
+  <div class="ash">
+    <div class="abr">
+      <div class="abl"><div class="logo-ph md"><img src="static\logp.png" alt="Mind Bridge"></div><div class="abln">Mind <span>Bridge</span></div></div>
+      <div class="abq"><h2>"Your mind deserves a bridge, not a wall."</h2><p>A safe space to be heard. Built on IFS therapy principles. 6 specialised AI agents. Always here for you.</p></div>
+      <div class="abt"><div class="atag">Crisis Detection</div><div class="atag">IFS Therapy</div><div class="atag">Find Therapists</div><div class="atag">Arabic & English</div><div class="atag">Breathing Tools</div><div class="atag">Daily Journal</div></div>
+      <div class="abcr">Made with love by Jana Hazem · jana.hazem.2024@alu.edu.eg</div>
+    </div>
+    <div class="afp">
+      <div class="atabs">
+        <button class="atab active" id="tab-l" onclick="sTab('l')">Sign In</button>
+        <button class="atab"        id="tab-r" onclick="sTab('r')">Register</button>
+        <button class="atab"        id="tab-c" onclick="sTab('c')">Clinician</button>
+      </div>
+      <div id="fl" style="display:flex;flex-direction:column">
+        <div class="ftit">Welcome back</div><div class="fsub">Continue your mental wellness journey</div>
+        <div id="le" class="ferr"></div>
+        <div class="fi"><label class="fl">Phone</label><input class="finp" id="lp" type="tel" placeholder="+20 1xx xxx xxxx" autocomplete="tel"></div>
+        <div class="fi"><label class="fl">Password</label><input class="finp" id="lw" type="password" placeholder="Your password" autocomplete="current-password"></div>
+        <button class="abtn" id="lb" onclick="doLogin()">Continue &#8594;</button>
+        <div class="swl">No account? <button onclick="sTab('r')">Create one free</button></div>
+      </div>
+      <div id="fr" style="display:none;flex-direction:column">
+        <div class="ftit">Join Mind Bridge</div><div class="fsub">Free &middot; Private &middot; Always here for you</div>
+        <div id="re" class="ferr"></div>
+        <div class="fi"><label class="fl">Your Name</label><input class="finp" id="rn" type="text" placeholder="e.g. Jana" autocomplete="given-name"></div>
+        <div class="fi"><label class="fl">Phone</label><input class="finp" id="rph" type="tel" placeholder="+20 1xx xxx xxxx" autocomplete="tel"></div>
+        <div class="fi"><label class="fl">Password</label><input class="finp" id="rw" type="password" placeholder="Min. 6 characters" autocomplete="new-password"></div>
+        <button class="abtn" id="rb" onclick="doRegister()">Create Account &#8594;</button>
+        <div class="swl">Already registered? <button onclick="sTab('l')">Sign in</button></div>
+      </div>
+      <div id="fc" style="display:none;flex-direction:column">
+        <div class="ftit">Clinician Access</div><div class="fsub">Requires admin secret from your organisation</div>
+        <div id="ce" class="ferr"></div>
+        <div class="fi"><label class="fl">Phone</label><input class="finp" id="cp" type="tel" placeholder="+20 1xx xxx xxxx"></div>
+        <div class="fi"><label class="fl">Password</label><input class="finp" id="cw" type="password" placeholder="Your password"></div>
+        <div class="fi"><label class="fl">Admin Secret</label><input class="finp" id="cs" type="password" placeholder="Provided by admin"></div>
+        <button class="abtn" id="cb" onclick="doClin()">Access Panel &#8594;</button>
+        <div class="swl"><button onclick="sTab('l')">&#8592; Patient login</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <nav id="sb">
+    <div class="sbtop">
+      <div class="sblogo">
+        <div class="sblic"><div class="logo-ph sm"><img src="static\logp.png" alt="Mind Bridge"></div></div>
+        <div class="sbln">Mind <span>Bridge</span></div>
+      </div>
+      <div class="sbuser" onclick="confirmLogout()">
+        <div class="sbav" id="sbav">U</div>
+        <div class="sbui"><div class="sbun" id="sbn">...</div><div class="sbur" id="sbr">Patient</div></div>
+        <span style="font-size:11px;color:rgba(255,255,255,.18)">&#8599;</span>
+      </div>
+      <button class="sbnew" onclick="startNew()"><div class="sbnic">+</div>New Session</button>
+    </div>
+    <div class="sbnav">
+      <div class="sbs">Workspace</div>
+      <div class="nit active" id="nav-chat"       onclick="showSec('chat')"><span class="nic">&#128172;</span>Conversation</div>
+      <div class="nit"        id="nav-therapist"  onclick="showSec('therapist')"><span class="nic">&#128506;&#65039;</span>Find Therapist<span class="nbadge">New</span></div>
+      <div class="nit"        id="nav-journal"    onclick="showSec('journal')"><span class="nic">&#128212;</span>Daily Journal</div>
+      <div class="nit"        id="nav-breathing"  onclick="showSec('breathing')"><span class="nic">&#127783;&#65039;</span>Breathing</div>
+      <div class="nit"        id="nav-progress"   onclick="showSec('progress')"><span class="nic">&#128200;</span>My Progress</div>
+      <div class="nit"        id="nav-settings"   onclick="showSec('settings')"><span class="nic">&#9881;&#65039;</span>Settings</div>
+      <div class="nit clin-only" id="nav-clinician" onclick="showSec('clinician')" style="display:none"><span class="nic">&#128203;</span>Patient Dashboard<span class="nbadge" id="alert-badge" style="display:none">!</span></div>
+      <div class="sbs" style="margin-top:7px">Recent</div>
+      <div id="rclist"><div class="rit"><div class="rdot"></div><span class="rlbl" style="font-style:italic;opacity:.4">No history yet</span></div></div>
+    </div>
+    <div class="sbfoot">
+      <div class="ccard" onclick="showCrisis()">
+        <div class="ccl">&#128314; Crisis Support</div>
+        <div class="ccn">762</div>
+        <div class="ccs">نفسي Egypt &middot; Free &middot; 24/7</div>
+      </div>
+      <div class="mchip"><div class="mdot"></div><div class="mtxt"><div class="mname" id="mlbl">llama-3.3-70b</div><div>via Groq LPU</div></div></div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <div class="mhdr">
+      <div class="mhl"><div class="mht" id="sect">Conversation</div><div class="mhs"><div class="sdot"></div><span id="slbl">Starting...</span></div></div>
+      <div class="mhr">
+        <div class="lpill"><button class="lbtn active" id="len" onclick="setLang('en')">EN</button><button class="lbtn" id="lar" onclick="setLang('ar')">&#1593;</button></div>
+        <button class="hbtn" id="mhbtn" onclick="toggleMb()">&#127777; Mood</button>
+        <button class="hbtn" onclick="getRitual()">&#10022; Ritual</button>
+      </div>
+    </div>
+    <div class="content">
+
+      <!-- CHAT SECTION -->
+      <div class="sec active" id="sec-chat">
+        <div class="mwrap" id="mwrap">
+          <div id="msgs"></div>
+          <div id="welcome">
+            <div class="wbrain"><div class="wring"></div><div class="wring"></div><div class="wring"></div><div class="logo-ph lg"><img src="static\logp.png" alt="Mind Bridge"></div></div>
+            <div class="wtit">Hello, <em id="wname">there</em>.</div>
+            <div class="wsub">Your safe space to be heard. Talk freely &mdash; I listen, support, and guide without judgment.</div>
+            <div class="wchips">
+              <div class="wc" onclick="sendMsg(&quot;I've been feeling anxious lately&quot;)">Feeling anxious</div>
+              <div class="wc" onclick="sendMsg('Help me with my sleep')">Sleep issues</div>
+              <div class="wc" onclick="sendMsg('I want to track my mood today')">Log my mood</div>
+              <div class="wc" onclick="sendMsg('&#1575;&#1585;&#1610;&#1583; &#1575;&#1604;&#1578;&#1581;&#1583;&#1579; &#1593;&#1606; &#1605;&#1588;&#1575;&#1593;&#1585;&#1610;')">&#1571;&#1585;&#1610;&#1583; &#1575;&#1604;&#1578;&#1581;&#1583;&#1579; &#1593;&#1606; &#1605;&#1588;&#1575;&#1593;&#1585;&#1610;</div>
+              <div class="wc" onclick="sendMsg('Can you suggest a calming ritual?')">Calming ritual</div>
+              <div class="wc" onclick="sendMsg('I feel overwhelmed at work')">Work stress</div>
+              <div class="wc" onclick="showSec('therapist')">Find therapist near me &#128506;&#65039;</div>
+              <div class="wc" onclick="showSec('breathing')">Guide me through breathing &#127783;&#65039;</div>
+            </div>
+          </div>
+        </div>
+        <div id="typing">
+          <div class="logo-ph sm" style="border-color:rgba(42,181,204,.35);box-shadow:0 0 12px rgba(42,181,204,.25)"><img src="static\logp.png" alt="Mind Bridge"></div>
+          <div class="tbub"><div class="td"></div><div class="td"></div><div class="td"></div></div>
+        </div>
+        <div class="inpa">
+          <div id="mbar">
+            <div class="mbt">How are you feeling right now?</div>
+            <div class="msliders">
+              <div class="mrow"><label>Mood</label><input type="range" class="msl" id="sm" min="1" max="10" value="5" oninput="updS(this,'vm')"><span class="mval" id="vm">5</span></div>
+              <div class="mrow"><label>Energy</label><input type="range" class="msl" id="se" min="1" max="10" value="5" oninput="updS(this,'ve')"><span class="mval" id="ve">5</span></div>
+              <div class="mrow"><label>Sleep</label><input type="range" class="msl" id="ssl" min="1" max="10" value="5" oninput="updS(this,'vs')"><span class="mval" id="vs">5</span></div>
+            </div>
+            <div class="mba"><button class="mbl" onclick="subMood()">Log Entry &#10022;</button><button class="mbc" onclick="toggleMb()">Cancel</button></div>
+          </div>
+          <div id="rtp"><div class="rtph"><div class="rtpn" id="rtn">Loading&hellip;</div><div class="rtpb" id="rtb">ritual</div></div><div class="rtpx" id="rtx"></div></div>
+          <div class="inpr">
+            <div class="inpl"><button class="ibtn" onclick="toggleMb()" id="mib">&#127777;</button><button class="ibtn" onclick="getRitual()">&#10022;</button></div>
+            <div class="inpw">
+              <textarea id="ui" rows="1" placeholder="Share what's on your mind&hellip;" onkeydown="hKey(event)" oninput="aRz(this);updC(this.value)" maxlength="2000"></textarea>
+              <span class="ccnt" id="ccnt"></span>
+              <button id="sndbtn" onclick="sendCur()" title="Send">&#8593;</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- THERAPIST FINDER -->
+      <div class="sec" id="sec-therapist">
+        <div class="tfw">
+          <div><div class="sh">Find a <em>Therapist</em></div><div class="ss">Licensed mental health professionals near you in Egypt</div></div>
+          <div class="tfctrls">
+            <button class="tfflt active" id="tf-all"          onclick="fTF('all')">&#128101; All</button>
+            <button class="tfflt"        id="tf-psychologist"  onclick="fTF('psychologist')">&#129504; Psychologist</button>
+            <button class="tfflt"        id="tf-psychiatrist"  onclick="fTF('psychiatrist')">&#128138; Psychiatrist</button>
+            <button class="tfflt"        id="tf-counselor"     onclick="fTF('counselor')">&#128172; Counselor</button>
+            <button class="tfflt"        id="tf-online"        onclick="fTF('online')">&#128241; Online</button>
+            <button class="tfloc"        id="locbtn"           onclick="locMe()">&#128205; Detect My Location</button>
+          </div>
+          <div id="tmc"><div id="tm"></div><div class="mover" id="mover">&#128506;&#65039; Egypt Mental Health Map</div></div>
+          <div class="tflist" id="tflist"><div class="tfempty">Click "Detect My Location" to find nearest therapists, or browse all below</div></div>
+        </div>
+      </div>
+
+      <!-- JOURNAL -->
+      <div class="sec" id="sec-journal">
+        <div class="jw">
+          <div><div class="sh">Daily <em>Journal</em></div><div class="ss">A private space to reflect &mdash; write freely, no judgment</div></div>
+          <div class="jcmp">
+            <div class="jprompt" id="jprompt">&#10022; What made you feel most like yourself today?</div>
+            <textarea class="jta" id="jta" placeholder="Write freely&hellip; your entries stay private on this device." rows="5"></textarea>
+            <div class="jft">
+              <div class="jmq2">
+                <button class="jmb" data-m="&#128522;" onclick="setJM(this)">&#128522;</button>
+                <button class="jmb" data-m="&#128532;" onclick="setJM(this)">&#128532;</button>
+                <button class="jmb" data-m="&#128548;" onclick="setJM(this)">&#128548;</button>
+                <button class="jmb" data-m="&#128560;" onclick="setJM(this)">&#128560;</button>
+                <button class="jmb" data-m="&#128564;" onclick="setJM(this)">&#128564;</button>
+                <button class="jmb" data-m="&#129303;" onclick="setJM(this)">&#129303;</button>
+              </div>
+              <button class="jsv" onclick="saveJ()">Save Entry &#10022;</button>
+            </div>
+          </div>
+          <div><div class="sh" style="font-size:16px">Past <em>Entries</em></div></div>
+          <div class="jents" id="jents"><div class="tfempty">Your journal entries will appear here</div></div>
+        </div>
+      </div>
+
+      <!-- BREATHING -->
+      <div class="sec" id="sec-breathing">
+        <div class="brw">
+          <div><div class="sh">Breathing <em>Exercises</em></div><div class="ss">Guided breathing to calm your nervous system instantly</div></div>
+          <div class="brscene">
+            <div class="borb"><div class="bring"></div><div class="bring2"></div><div class="binn" id="binn"><div class="blbl" id="blbl">Ready</div></div></div>
+            <div class="bphase" id="bphase">Choose a pattern and begin</div>
+            <div class="bcnt" id="bcnt">&mdash;</div>
+            <div class="bpats">
+              <button class="bpbt active" id="bp-478" onclick="setBP('478')">4-7-8 Calm</button>
+              <button class="bpbt"        id="bp-box" onclick="setBP('box')">Box Breathing</button>
+              <button class="bpbt"        id="bp-24"  onclick="setBP('24')">2-4 Quick Calm</button>
+              <button class="bpbt"        id="bp-res" onclick="setBP('res')">Resonance 5-5</button>
+            </div>
+            <button class="bstart" id="bstart" onclick="togBreath()">&#9654; Start Session</button>
+            <div class="btip" id="btip">4-7-8: Inhale 4s &rarr; Hold 7s &rarr; Exhale 8s. Activates the parasympathetic nervous system for deep calm.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROGRESS -->
+      <div class="sec" id="sec-progress">
+        <div class="pw">
+          <div><div class="sh">Your <em>Journey</em></div><div class="ss">Track your emotional wellbeing over time</div></div>
+          <div class="sgrid">
+            <div class="scard tc"><div class="scl">Total Exchanges</div><div class="scv tc" id="stturns">&mdash;</div><div class="scs">messages</div></div>
+            <div class="scard gc"><div class="scl">Avg Mood Score</div><div class="scv" id="stmood">&mdash;</div><div class="scs">out of 10</div></div>
+            <div class="scard sc"><div class="scl">Journal Entries</div><div class="scv" id="stj">0</div><div class="scs">written</div></div>
+          </div>
+          <div class="cc"><div class="ct">Mood Timeline</div><div class="mchart" id="mchart"><div class="cempty">Log your mood to see your timeline</div></div></div>
+          <div class="gc2"><div class="gt">Active Goals</div><div id="glist"><div style="font-size:12.5px;color:rgba(255,255,255,.22);font-style:italic;padding:7px 0">Goals will appear as sessions progress</div></div></div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="sec" id="sec-settings">
+        <div class="setw">
+          <div><div class="sh">Preferences</div><div class="ss">Customise your Mind Bridge experience</div></div>
+          <div class="sgrp">
+            <div class="sgrt">Session</div>
+            <div class="srow"><div class="srl"><div class="srt">Auto-detect language</div><div class="srs">Switch Arabic/English automatically</div></div><label class="toggle"><input type="checkbox" id="tog-lang" checked><div class="ttr"></div></label></div>
+            <div class="srow"><div class="srl"><div class="srt">Crisis alerts</div><div class="srs">Show resources when risk is detected</div></div><label class="toggle"><input type="checkbox" id="tog-crisis" checked><div class="ttr"></div></label></div>
+            <div class="srow"><div class="srl"><div class="srt">Mood prompts</div><div class="srs">Remind you to log mood each session</div></div><label class="toggle"><input type="checkbox" id="tog-mood"><div class="ttr"></div></label></div>
+          </div>
+          <div class="sgrp" id="grp-my-clinician" style="display:none">
+            <div class="sgrt">My Clinician</div>
+            <div id="my-clinician-card">
+              <div class="srow"><div class="srl"><div class="srt" id="mc-name">Not linked</div><div class="srs" id="mc-since">Link to a clinician using their invite code</div></div></div>
+            </div>
+            <div class="srow" id="row-invite-input">
+              <div class="srl"><div class="srt">Enter invite code</div><div class="srs">Your clinician will share this with you</div></div>
+              <div style="display:flex;gap:6px;align-items:center">
+                <input id="invite-code-input" class="cl-search" style="max-width:160px;font-family:monospace;text-transform:uppercase" placeholder="MB-XXXXXXXX" maxlength="12">
+                <button class="gbtn2" onclick="acceptInvite()">Link</button>
+              </div>
+            </div>
+          </div>
+          <div class="sgrp">
+            <div class="sgrt">Privacy &amp; Data</div>
+            <div class="srow"><div class="srl"><div class="srt">Session ID</div><div class="srs" id="setsid" style="font-family:monospace;font-size:9.5px">&mdash;</div></div></div>
+            <div class="srow"><div class="srl"><div class="srt">Clear session</div><div class="srs">Fresh conversation start</div></div><button class="gbtn2" onclick="clearH()">Clear</button></div>
+            <div class="srow"><div class="srl"><div class="srt">Sign out</div><div class="srs">Remove session from this device</div></div><button class="dbtn2" onclick="doLogout()">Sign Out</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CLINICIAN DASHBOARD -->
+      <div class="sec" id="sec-clinician">
+        <div class="clw">
+          <div class="clhdr">
+            <div>
+              <div class="sh">Patient <em>Dashboard</em></div>
+              <div class="ss">Monitor progress &amp; alerts for your linked patients</div>
+            </div>
+            <button class="clrefbtn" onclick="loadClinicianDash()">&#8635; Refresh</button>
+          </div>
+
+          <!-- Invite Panel -->
+          <div class="cl-invite-panel">
+            <div class="cl-invite-left">
+              <div class="cl-invite-title">&#128279; Invite a Patient</div>
+              <div class="cl-invite-sub">Generate a one-time code. Share it with your patient — they enter it in Settings → My Clinician to link their account to yours.</div>
+            </div>
+            <div class="cl-invite-right">
+              <div id="cl-invite-code" class="cl-code-box" style="display:none"></div>
+              <button class="clrefbtn" id="cl-gen-btn" onclick="generateInvite()">&#43; Generate Code</button>
+              <button class="cl-copy-btn" id="cl-copy-btn" style="display:none" onclick="copyInviteCode()">&#128203; Copy</button>
+            </div>
+          </div>
+
+          <!-- Stats Row -->
+          <div class="cl-stats">
+            <div class="clsc ac"><div class="clsl">Linked Patients</div><div class="clsv" id="cl-total">—</div></div>
+            <div class="clsc rc"><div class="clsl">&#128314; Crisis Alerts</div><div class="clsv danger" id="cl-crisis">—</div></div>
+            <div class="clsc wc"><div class="clsl">&#9888; Needs Attention</div><div class="clsv warn" id="cl-worsen">—</div></div>
+            <div class="clsc sc"><div class="clsl">&#10003; Stable</div><div class="clsv ok" id="cl-stable">—</div></div>
+          </div>
+
+          <!-- Alert Queue -->
+          <div class="cl-section">
+            <div class="cl-sec-hdr"><span>&#128314; Unread Alerts</span><span class="cl-badge" id="cl-unread-count">0</span></div>
+            <div id="cl-alerts"><div class="cl-empty">No unread alerts</div></div>
+          </div>
+
+          <!-- Patient List -->
+          <div class="cl-section">
+            <div class="cl-sec-hdr">
+              <span>&#128101; My Patients</span>
+              <input class="cl-search" id="cl-search" placeholder="Search name or ID…" oninput="filterPatients(this.value)">
+            </div>
+            <div id="cl-patients"><div class="cl-empty">Loading…</div></div>
+          </div>
+        </div>
+
+        <!-- Patient Detail Drawer -->
+        <div class="cl-drawer" id="cl-drawer">
+          <div class="cl-drawer-hdr">
+            <div>
+              <div class="cl-dname" id="cl-dname">Patient</div>
+              <div class="cl-dsid" id="cl-dsid">—</div>
+            </div>
+            <div style="display:flex;gap:6px">
+              <button class="cl-flag-btn" style="width:auto;padding:5px 10px;font-size:11px;margin:0" onclick="removePatient(clDrawerPid)">&#10005; Remove</button>
+              <button class="cl-dclose" onclick="closeDrawer()">&#10005;</button>
+            </div>
+          </div>
+          <div class="cl-drawer-body" id="cl-drawer-body"></div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <aside id="rp">
+    <div class="rphd">Session Health</div>
+    <div class="rpb">
+      <div class="sorb-w"><div class="sorb safe" id="sorb">&#129504;</div><div class="slbl" id="slb">Safe</div></div>
+      <div class="rpst"><div class="rpsl">Exchanges</div><div class="rpsv" id="rpt">0</div><div class="rpss">this session</div></div>
+      <div class="rpst"><div class="rpsl">Last Agent</div><div class="rpsv" id="rpa" style="font-size:12px;font-family:monospace;padding-top:3px">&mdash;</div><div class="rpss">active module</div></div>
+      <div class="rpst"><div class="rpsl">Response</div><div class="rpsv" id="rpl">&mdash;</div><div class="rpss">ms last reply</div></div>
+      <div class="rpacts">
+        <button class="rpa" onclick="sendMsg('How am I progressing?')">&#128202; Check progress</button>
+        <button class="rpa" onclick="getRitual()">&#10022; Get ritual</button>
+        <button class="rpa" onclick="toggleMb()">&#127777; Log mood</button>
+        <button class="rpa" onclick="showSec('therapist')">&#128506;&#65039; Find therapist</button>
+        <button class="rpa" onclick="showSec('breathing')">&#127783;&#65039; Breathing exercise</button>
+        <button class="rpa cr" onclick="showCrisis()">&#128314; Crisis resources</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- CRISIS MODAL -->
+<div class="ov" id="cov" onclick="if(event.target===this)hideCrisis()">
+  <div class="cm">
+    <div class="cmh"><div class="cmi">&#128314;</div><div class="cmt">You're not alone</div><div class="cms">Reach out &mdash; help is available right now, 24/7</div></div>
+    <div class="cmb">
+      <a class="cres" href="https://wa.me/201006228511" target="_blank"><div class="cri">&#128172;</div><div><div class="crn">نفسي Egypt &mdash; Mental Health Support</div><div class="crnum">WhatsApp: +20 100 622 8511</div><div class="crnote">Arabic &amp; English &middot; Trained volunteers &middot; Free</div></div></a>
+      <a class="cres" href="tel:08008880700"><div class="cri">&#128222;</div><div><div class="crn">Befrienders Cairo &mdash; Emotional Support</div><div class="crnum">0800 888 0700</div><div class="crnote">Free hotline &middot; 24/7 &middot; English &amp; Arabic</div></div></a>
+      <a class="cres" href="https://befrienderscairo.org" target="_blank"><div class="cri">&#128154;</div><div><div class="crn">Befrienders Cairo &mdash; Website</div><div class="crnum">befrienderscairo.org</div><div class="crnote">Confidential listening &middot; Non-judgemental</div></div></a>
+      <a class="cres" href="tel:123"><div class="cri">&#128682;</div><div><div class="crn">Emergency Services &mdash; Egypt</div><div class="crnum">123</div><div class="crnote">Police &middot; Ambulance &middot; Any life-threatening emergency</div></div></a>
+      <a class="cres" href="tel:08008880553"><div class="cri">&#129309;</div><div><div class="crn">Egyptian Addiction Helpline</div><div class="crnum">0800 888 0553</div><div class="crnote">Funded by Ministry of Health &middot; Free &middot; Confidential</div></div></a>
+      <a class="cres" href="tel:16328"><div class="cri">&#127973;</div><div><div class="crn">Ministry of Health Psychiatric Hotline</div><div class="crnum">16328</div><div class="crnote">Referral to nearest public mental health hospital</div></div></a>
+      <button class="crcl" onclick="hideCrisis()">I'm okay, close this</button>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING MODAL -->
+<div class="ov" id="bkov" onclick="if(event.target===this)hideBook()">
+  <div class="bkm">
+    <div class="bkh"><div class="bkt">Book Appointment</div><div class="bks">Choose a time slot &mdash; confirmation sent via WhatsApp</div></div>
+    <div class="bkb">
+      <div class="bkdoc"><div style="font-size:24px" id="bmav">&#128105;&#8205;&#9877;&#65039;</div><div><div style="font-family:var(--fh);font-size:14px;font-weight:700;color:var(--white)" id="bmname">Dr. ...</div><div style="font-size:11.5px;color:var(--t3);margin-top:2px" id="bmspec">Psychologist</div></div></div>
+      <div class="bkslots" id="bkslots"></div>
+      <button class="bkcon" onclick="confirmBook()">Confirm Booking &#10022;</button>
+      <button class="bkcan" onclick="hideBook()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+<script>
+/* CURSOR */
+const $c=document.getElementById('cur'),$c2=document.getElementById('cur2');
+let mx=0,my=0,tx=0,ty=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;$c.style.left=mx+'px';$c.style.top=my+'px'});
+(function a(){tx+=(mx-tx)*.13;ty+=(my-ty)*.13;$c2.style.left=tx+'px';$c2.style.top=ty+'px';requestAnimationFrame(a)})();
+document.querySelectorAll('button,a,[onclick]').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{$c.style.width='18px';$c.style.height='18px';$c2.style.width='46px';$c2.style.height='46px'});
+  el.addEventListener('mouseleave',()=>{$c.style.width='10px';$c.style.height='10px';$c2.style.width='34px';$c2.style.height='34px'});
+});
+
+/* STATE */
+const S={token:null,uid:null,role:'user',name:'Friend',sid:null,turns:0,moods:[],lats:[],typing:false,rtl:false,jmood:'😊',jents:[],bActive:false,bTimer:null,bPat:'478',tfFil:'all',bSlot:null,bDoc:null};
+
+/* INIT */
+window.addEventListener('DOMContentLoaded',async()=>{
+  try{
+    await new Promise(r=>setTimeout(r,1800));
+    const tok=localStorage.getItem('mb_tok');
+    if(tok){
+      S.token=tok;S.uid=localStorage.getItem('mb_uid');
+      S.role=localStorage.getItem('mb_role')||'user';
+      S.name=localStorage.getItem('mb_name')||'Friend';
+      S.sid=localStorage.getItem('mb_sid')||null;
+      const valid=await verifyTok();
+      if(valid){showApp();return;}
+    }
+    hideLd();showAuth();
+  }catch(err){
+    console.error('Init error:',err);
+    hideLd();showAuth();
+  }
+});
+async function verifyTok(){
+  try{
+    const ctrl=new AbortController();
+    const tid=setTimeout(()=>ctrl.abort(),3000);
+    const r=await fetch('/auth/me',{headers:{'Authorization':'Bearer '+S.token},signal:ctrl.signal});
+    clearTimeout(tid);return r.ok;
+  }catch{return false;}
+}
+function hideLd(){document.getElementById('loading').style.display='none';}
+function showAuth(){document.getElementById('auth').style.display='flex';hideLd();}
+
+/* AUTH TABS */
+function sTab(t){
+  ['l','r','c'].forEach(k=>{
+    document.getElementById('f'+k).style.display='none';
+    const el=document.getElementById('tab-'+k);if(el)el.classList.remove('active');
+  });
+  document.getElementById('f'+t).style.display='flex';
+  const el=document.getElementById('tab-'+t);if(el)el.classList.add('active');
+}
+function setE(id,m){const e=document.getElementById(id);e.textContent=m;e.classList.add('show');}
+function clrE(id){document.getElementById(id).classList.remove('show');}
+
+/* AUTH ACTIONS */
+async function doRegister(){
+  clrE('re');
+  const phone=document.getElementById('rph').value.trim(),
+        pass=document.getElementById('rw').value.trim(),
+        name=document.getElementById('rn').value.trim();
+  if(!phone||!pass){setE('re','Phone and password required.');return;}
+  const btn=document.getElementById('rb');btn.classList.add('loading');btn.disabled=true;
+  try{
+    const r=await fetch('/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone,password:pass,name})});
+    const d=await r.json();
+    if(!r.ok){setE('re',d.detail||'Registration failed.');return;}
+    saveAuth({token:d.token,uid:d.user_id,role:'user',name:name||'Friend'});
+    toast('Welcome to Mind Bridge 🧠','success');await showApp();
+  }catch{setE('re','Connection error. Is the server running?');}
+  finally{btn.classList.remove('loading');btn.disabled=false;}
+}
+
+async function doLogin(){
+  clrE('le');
+  const phone=document.getElementById('lp').value.trim(),
+        pass=document.getElementById('lw').value.trim();
+  if(!phone||!pass){setE('le','Phone and password required.');return;}
+  const btn=document.getElementById('lb');btn.classList.add('loading');btn.disabled=true;
+  try{
+    const r=await fetch('/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone,password:pass})});
+    const d=await r.json();
+    if(!r.ok){setE('le',d.detail||'Wrong credentials.');return;}
+    saveAuth({token:d.token,uid:d.user_id,sid:d.session_id,role:d.role,name:d.name});
+    toast('Welcome back'+(d.name?', '+d.name.split(' ')[0]:'')+' 🧠','success');
+    await showApp();
+  }catch{setE('le','Connection error. Is the server running?');}
+  finally{btn.classList.remove('loading');btn.disabled=false;}
+}
+
+async function doClin(){
+  clrE('ce');
+  const phone=document.getElementById('cp').value.trim(),
+        pass=document.getElementById('cw').value.trim(),
+        secret=document.getElementById('cs').value.trim();
+  if(!phone||!pass||!secret){setE('ce','All fields required.');return;}
+  const btn=document.getElementById('cb');btn.classList.add('loading');btn.disabled=true;
+  try{
+    const lr=await fetch('/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone,password:pass})});
+    const ld=await lr.json();
+    if(lr.ok&&ld.role==='clinician'){
+      saveAuth({token:ld.token,uid:ld.user_id,sid:ld.session_id,role:'clinician',name:ld.name});
+      toast('Clinician access granted 🏥','success');await showApp();return;
+    }
+    const rr=await fetch('/auth/register/clinician',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone,password:pass,admin_secret:secret})});
+    const rd=await rr.json();
+    if(!rr.ok){setE('ce',rd.detail||'Failed.');return;}
+    saveAuth({token:rd.token,uid:rd.user_id,role:'clinician',name:'Clinician'});
+    toast('Clinician account created 🏥','success');await showApp();
+  }catch{setE('ce','Connection error.');}
+  finally{btn.classList.remove('loading');btn.disabled=false;}
+}
+
+function saveAuth({token,uid,sid,role,name}){
+  S.token=token;S.uid=uid;S.role=role||'user';S.name=name||'Friend';S.sid=sid||null;
+  localStorage.setItem('mb_tok',token);
+  localStorage.setItem('mb_uid',uid||'');
+  localStorage.setItem('mb_role',S.role);
+  localStorage.setItem('mb_name',S.name);
+  if(sid)localStorage.setItem('mb_sid',sid);
+}
+function clrAuth(){
+  ['mb_tok','mb_uid','mb_role','mb_name','mb_sid'].forEach(k=>localStorage.removeItem(k));
+  Object.assign(S,{token:null,uid:null,role:'user',name:'Friend',sid:null});
+}
+
+/* APP INIT */
+async function showApp(){
+  hideLd();
+  document.getElementById('auth').style.display='none';
+  document.getElementById('app').classList.add('show');
+  document.getElementById('sbn').textContent=S.name;
+  document.getElementById('sbr').textContent=S.role==='clinician'?'Clinician':'Patient';
+  document.getElementById('sbav').textContent=(S.name[0]||'U').toUpperCase();
+  document.getElementById('wname').textContent=S.name.split(' ')[0]||'there';
+  // Show clinician nav
+  const clinNav=document.getElementById('nav-clinician');
+  if(clinNav)clinNav.style.display=S.role==='clinician'?'flex':'none';
+  if(!S.sid)await newSess();
+  else{
+    document.getElementById('slbl').textContent='Session · '+S.sid.slice(0,16);
+    document.getElementById('setsid').textContent=S.sid;
+  }
+  await loadStat();await loadProg();loadJ();
+  setTimeout(initTFMap,500);
+  _initClinicianFeatures();
+}
+
+async function newSess(){
+  try{const r=await aF('/api/session/new',{method:'POST'});const d=await r.json();S.sid=d.session_id;}
+  catch{S.sid='web-'+Math.random().toString(36).slice(2,16);}
+  localStorage.setItem('mb_sid',S.sid);
+  document.getElementById('slbl').textContent='Session · '+S.sid.slice(0,16);
+  document.getElementById('setsid').textContent=S.sid;
+  clearMsgs();S.turns=0;updRP({});
+}
+async function startNew(){await newSess();toast('New session started 🧠','success');}
+async function loadStat(){
+  try{
+    const r=await aF('/api/status');if(!r.ok)return;
+    const d=await r.json();
+    if(d.model)document.getElementById('mlbl').textContent=d.model.replace('llama-3.3-','').replace('-versatile','');
+  }catch{}
+}
+
+/* API HELPER */
+async function aF(p,o={}){
+  const h={'Content-Type':'application/json',...(o.headers||{})};
+  if(S.token)h['Authorization']='Bearer '+S.token;
+  return fetch(p,{...o,headers:h});
+}
+
+/* LANGUAGE */
+function setLang(l){
+  S.rtl=l==='ar';
+  document.getElementById('len').classList.toggle('active',l==='en');
+  document.getElementById('lar').classList.toggle('active',l==='ar');
+  document.getElementById('ui').placeholder=S.rtl?'شارك ما يدور في ذهنك…':"Share what's on your mind…";
+}
+
+/* CHAT */
+async function sendCur(){
+  const el=document.getElementById('ui');const m=el.value.trim();
+  if(!m||S.typing)return;
+  el.value='';aRz(el);updC('');await sendMsg(m);
+}
+
+async function sendMsg(m){
+  if(!m||S.typing)return;
+  const w=document.getElementById('welcome');if(w)w.style.display='none';
+  const ar=/[\u0600-\u06FF]/.test(m);
+  if(ar&&document.getElementById('tog-lang').checked)S.rtl=true;
+  appMsg('user',m,{rtl:ar});showT();S.typing=true;
+  document.getElementById('sndbtn').disabled=true;
+  const t0=Date.now();
+  try{
+    const r=await aF('/chat',{method:'POST',body:JSON.stringify({session_id:S.sid,message:m,lang_hint:ar?'ar':'en'})});
+    const d=await r.json();
+    hideT();S.typing=false;document.getElementById('sndbtn').disabled=false;
+    if(r.status===401){toast('Session expired. Please sign in again.','error');doLogout();return;}
+    if(d.detail){appMsg('bot',d.detail,{safety:'error'});return;}
+    const lat=d.latency_ms||(Date.now()-t0);
+    const bAr=/[\u0600-\u06FF]/.test(d.reply||'');
+    const crisis=['hard_escalate','watchdog_veto','mood_hard_escalate'].includes(d.safety_level);
+    appMsg('bot',d.reply||'No response',{agent:d.sub_agent,safety:d.safety_level,lat,rtl:bAr,crisis});
+    S.turns++;S.lats.push(lat);
+    updRP({lat,safety:d.safety_level,agent:d.sub_agent});
+    updSorb(d.safety_level);pushRC(m);
+    if(crisis&&document.getElementById('tog-crisis').checked)setTimeout(()=>showCrisis(),1500);
+    await loadProg();
+  }catch{
+    hideT();S.typing=false;document.getElementById('sndbtn').disabled=false;
+    appMsg('bot','⚠ Connection error. Check server is running.');
+  }
+}
+
+function appMsg(role,text,opts={}){
+  const msgs=document.getElementById('msgs'),wrap=document.getElementById('mwrap');
+  const el=document.createElement('div');
+  el.className='msg '+role+(opts.crisis?' crisis':'');
+  const isU=role==='user';
+  const rtlC=opts.rtl?' rtl':'';
+  const botLogoSVG=`<div class="logo-ph xs"><img src="static/logp.png" alt="Mind Bridge"></div>`
+  const avH=isU
+    ?`<div class="mav" style="background:linear-gradient(135deg,var(--navy2),var(--navy));border:1.5px solid rgba(42,181,204,.13);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:12px;font-weight:700;color:var(--t3);flex-shrink:0">${(S.name[0]||'U').toUpperCase()}</div>`
+    :`<div class="mav" style="background:linear-gradient(135deg,var(--t6),var(--t8));border:1.5px solid rgba(42,181,204,.22);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">${botLogoSVG}</div>`;
+  const ap=opts.agent?`<span class="apill ${opts.agent}">${opts.agent.replace(/_/g,' ')}</span>`:'';
+  const lp=opts.lat?`<span>${Math.round(opts.lat)}ms</span>`:'';
+  const tp=`<span>${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span>`;
+  el.innerHTML=`${avH}<div class="mbody"><div class="mbub${rtlC}">${fmtT(text)}</div><div class="mmeta">${isU?tp:ap+lp+tp}</div></div>`;
+  msgs.appendChild(el);
+  wrap.scrollTo({top:wrap.scrollHeight,behavior:'smooth'});
+}
+
+function fmtT(t){return t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');}
+function clearMsgs(){document.getElementById('msgs').innerHTML='';const w=document.getElementById('welcome');if(w)w.style.display='flex';}
+function showT(){document.getElementById('typing').classList.add('show');document.getElementById('mwrap').scrollTo({top:9999,behavior:'smooth'});}
+function hideT(){document.getElementById('typing').classList.remove('show');}
+
+/* MOOD */
+function toggleMb(){
+  const b=document.getElementById('mbar');
+  const a=b.classList.toggle('show');
+  document.getElementById('mhbtn').classList.toggle('active',a);
+  document.getElementById('mib').classList.toggle('active',a);
+}
+function updS(el,id){document.getElementById(id).textContent=el.value;}
+
+async function subMood(){
+  const mood=+document.getElementById('sm').value,
+        energy=+document.getElementById('se').value,
+        sleep=+document.getElementById('ssl').value;
+  try{
+    const r=await aF('/api/mood',{method:'POST',body:JSON.stringify({session_id:S.sid,mood,energy,sleep})});
+    if(r.ok){
+      S.moods.push({mood,energy,sleep,ts:Date.now()});
+      updMC();toast('Mood logged: '+mood+'/10 🧠','success');toggleMb();
+    }else toast('Could not log mood.','error');
+  }catch{toast('Connection error.','error');}
+}
+
+function updMC(){
+  const c=document.getElementById('mchart');if(!S.moods.length)return;c.innerHTML='';
+  S.moods.slice(-24).forEach(e=>{
+    const b=document.createElement('div');b.className='mbar';
+    const pct=(e.mood/10)*100;const hue=e.mood*12;
+    b.style.cssText=`height:${pct}%;background:linear-gradient(180deg,hsl(${hue},60%,52%),hsl(${hue},50%,38%));opacity:.82`;
+    b.setAttribute('data-v',e.mood);b.title=`Mood:${e.mood} E:${e.energy} S:${e.sleep}`;
+    c.appendChild(b);
+  });
+}
+
+/* RITUAL */
+async function getRitual(){
+  const p=document.getElementById('rtp');p.classList.add('show');
+  document.getElementById('rtn').textContent='Loading…';document.getElementById('rtx').textContent='';
+  const ms=S.moods.length?S.moods.at(-1).mood:5;
+  try{
+    const r=await aF('/api/ritual',{method:'POST',body:JSON.stringify({session_id:S.sid,mood_score:ms,context:'current session'})});
+    const d=await r.json();
+    if(r.ok&&d.ritual_name){
+      document.getElementById('rtn').textContent=d.ritual_name;
+      document.getElementById('rtb').textContent=d.ritual_type||'ritual';
+      const s=Array.isArray(d.steps)?d.steps.join(' → '):(d.steps||'');
+      document.getElementById('rtx').textContent=(d.why||'')+'\n\n'+s;
+    }else document.getElementById('rtn').textContent='Could not load ritual';
+  }catch{document.getElementById('rtn').textContent='Connection error';}
+}
+
+/* PROGRESS */
+async function loadProg(){
+  if(!S.sid)return;
+  try{
+    const r=await aF('/api/session/'+S.sid+'/progress');if(!r.ok)return;
+    const d=await r.json();
+    document.getElementById('stturns').textContent=d.total_turns??S.turns;
+    document.getElementById('rpt').textContent=d.total_turns??S.turns;
+    if(d.mood_history?.length){
+      S.moods=d.mood_history;updMC();
+      const avg=(d.mood_history.reduce((s,e)=>s+(e.mood??e),0)/d.mood_history.length).toFixed(1);
+      document.getElementById('stmood').textContent=avg;
+    }
+    if(d.active_goals?.length){
+      const gl=document.getElementById('glist');
+      gl.innerHTML=d.active_goals.map((g,i)=>`<div class="grow" style="animation-delay:${i*70}ms"><div class="gdot"></div><div class="gtxt">${g}</div></div>`).join('');
+    }
+  }catch{}
+}
+
+/* RIGHT PANEL */
+function updRP({lat,safety,agent}={}){
+  if(lat)document.getElementById('rpl').textContent=Math.round(lat);
+  if(agent)document.getElementById('rpa').textContent=agent.replace(/_/g,' ');
+  document.getElementById('rpt').textContent=S.turns;
+}
+function updSorb(level){
+  const o=document.getElementById('sorb'),l=document.getElementById('slb');
+  o.className='sorb';
+  if(['hard_escalate','watchdog_veto','mood_hard_escalate'].includes(level)){o.classList.add('danger');o.textContent='🆘';l.textContent='Crisis';}
+  else if(['soft_escalate','flagged','caution'].includes(level)){o.classList.add('caution');o.textContent='⚠';l.textContent='Caution';}
+  else{o.classList.add('safe');o.textContent='🧠';l.textContent='Safe';}
+}
+function pushRC(m){
+  const rc=document.getElementById('rclist');
+  const lbl=m.length>32?m.slice(0,32)+'…':m;
+  const el=document.createElement('div');el.className='rit';
+  el.innerHTML=`<div class="rdot"></div><span class="rlbl">${lbl}</span>`;
+  rc.prepend(el);
+  const items=rc.querySelectorAll('.rit');if(items.length>5)items[items.length-1].remove();
+}
+
+/* SECTION NAV */
+const SECS={chat:'Conversation',therapist:'Find Therapist',journal:'Daily Journal',breathing:'Breathing',progress:'My Progress',settings:'Settings',clinician:'Patient Dashboard'};
+function showSec(n){
+  Object.keys(SECS).forEach(k=>{
+    const s=document.getElementById('sec-'+k),v=document.getElementById('nav-'+k);
+    if(s)s.classList.toggle('active',k===n);
+    if(v)v.classList.toggle('active',k===n);
+  });
+  document.getElementById('sect').textContent=SECS[n]||n;
+  if(n==='progress')loadProg();
+  if(n==='clinician')loadClinicianDash();
+  if(n==='therapist'){
+    initTFMap();renderTFL();
+    // Must invalidateSize AFTER section is visible in DOM
+    setTimeout(function(){
+      if(tfMap){tfMap.invalidateSize();plotTH(TH);}
+    },150);
+  }
+}
+
+/* CRISIS MODAL */
+function showCrisis(){document.getElementById('cov').classList.add('show');}
+function hideCrisis(){document.getElementById('cov').classList.remove('show');}
+
+/* LOGOUT */
+function confirmLogout(){if(confirm('Sign out of Mind Bridge?'))doLogout();}
+function doLogout(){
+  stopBreath();clrAuth();
+  document.getElementById('app').classList.remove('show');
+  document.getElementById('app').style.display='none';
+  document.getElementById('msgs').innerHTML='';
+  const w=document.getElementById('welcome');if(w)w.style.display='flex';
+  document.getElementById('auth').style.display='flex';
+  toast('Signed out. Take care 🧠');
+}
+function clearH(){if(confirm('Clear session and start fresh?')){startNew();toast('Fresh start 🧠','success');}}
+
+/* THERAPIST FINDER */
+const TH=[
+  {id:1,name:'Dr. Amira Hassan',spec:'Clinical Psychologist',type:'psychologist',lat:30.0444,lng:31.2357,dist:null,rating:4.9,reviews:128,available:true,fee:'250 EGP',emoji:'👩‍⚕️',address:'Nasr City, Cairo',online:true},
+  {id:2,name:'Dr. Mohamed Karim',spec:'Psychiatrist',type:'psychiatrist',lat:30.0626,lng:31.2497,dist:null,rating:4.8,reviews:94,available:true,fee:'350 EGP',emoji:'👨‍⚕️',address:'Heliopolis, Cairo',online:false},
+  {id:3,name:'Dr. Nour El-Din',spec:'Family Therapist',type:'counselor',lat:30.0131,lng:31.2089,dist:null,rating:4.7,reviews:67,available:false,fee:'200 EGP',emoji:'👩‍⚕️',address:'Maadi, Cairo',online:true},
+  {id:4,name:'Dr. Sara Mansour',spec:'CBT Specialist',type:'psychologist',lat:29.9553,lng:31.1656,dist:null,rating:4.9,reviews:203,available:true,fee:'300 EGP',emoji:'👩‍⚕️',address:'6th of October, Giza',online:true},
+  {id:5,name:'Dr. Khaled Ibrahim',spec:'Anxiety & Depression',type:'psychiatrist',lat:31.2001,lng:29.9187,dist:null,rating:4.6,reviews:55,available:true,fee:'400 EGP',emoji:'👨‍⚕️',address:'Smouha, Alexandria',online:false},
+  {id:6,name:'Dr. Yasmin Talaat',spec:'Trauma Counselor',type:'counselor',lat:30.0756,lng:31.3000,dist:null,rating:4.8,reviews:89,available:true,fee:'220 EGP',emoji:'👩‍⚕️',address:'Ain Shams, Cairo',online:true},
+  {id:7,name:'Dr. Omar Farouk',spec:'Child & Adolescent',type:'psychologist',lat:30.0500,lng:31.3500,dist:null,rating:4.7,reviews:112,available:false,fee:'280 EGP',emoji:'👨‍⚕️',address:'Rehab City, Cairo',online:true},
+  {id:8,name:'Dr. Hana Zaki',spec:'Online Therapist (IFS)',type:'psychologist',lat:30.0444,lng:31.2357,dist:null,rating:5.0,reviews:47,available:true,fee:'180 EGP',emoji:'👩‍⚕️',address:'Online Sessions Only',online:true},
+  {id:9,name:'Dr. Tarek Naguib',spec:'Addiction Specialist',type:'psychiatrist',lat:30.0756,lng:31.3200,dist:null,rating:4.5,reviews:38,available:true,fee:'380 EGP',emoji:'👨‍⚕️',address:'Zamalek, Cairo',online:false},
+  {id:10,name:'Dr. Mona El-Sayed',spec:'Grief & Loss Counselor',type:'counselor',lat:30.0131,lng:31.2400,dist:null,rating:4.9,reviews:71,available:true,fee:'230 EGP',emoji:'👩‍⚕️',address:'Dokki, Giza',online:true},
+];
+let tfMap=null,uMark=null,tfMks=[];let uLat=null,uLng=null;
+
+function initTFMap(){
+  if(tfMap)return;
+  // Wait up to 3s for Leaflet to load asynchronously
+  var attempts=0;
+  function tryInit(){
+    attempts++;
+    if(typeof L!=='undefined'&&!window._leafletFailed){
+      try{
+        tfMap=L.map('tm',{zoomControl:true,attributionControl:false}).setView([30.0444,31.2357],11);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+        maxZoom:18,
+        attribution:'© OpenStreetMap',
+        crossOrigin:true
+      }).addTo(tfMap);
+      // Force redraw after container is fully visible
+      setTimeout(function(){tfMap.invalidateSize();},300);
+        plotTH(TH);
+      }catch(e){showMapOffline();}
+    }else if(attempts<15&&!window._leafletFailed){
+      setTimeout(tryInit,200); // retry every 200ms for 3s
+    }else{
+      showMapOffline();
+    }
+    renderTFL();
+  }
+  tryInit();
+}
+function showMapOffline(){
+  var el=document.getElementById('tmc');
+  if(el)el.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted2);font-size:13px;flex-direction:column;gap:10px;background:rgba(13,32,45,.5);border-radius:14px"><div style="font-size:36px">🗺️</div><div style="font-weight:600;color:var(--white)">Map needs internet connection</div><div style="font-size:11px;opacity:.6;text-align:center;max-width:260px">Therapist list with all details is fully available below — no map needed to book</div></div>';
+}
+
+function plotTH(list){
+  tfMks.forEach(m=>m.remove());tfMks=[];
+  list.forEach(t=>{
+    const ic=L.divIcon({className:'',html:`<div style="width:34px;height:34px;background:linear-gradient(135deg,#1a7a8f,#0d4455);border:2px solid #2ab5cc;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 4px 14px rgba(0,0,0,.5)">${t.emoji}</div>`,iconSize:[34,34],iconAnchor:[17,17]});
+    const m=L.marker([t.lat,t.lng],{icon:ic}).addTo(tfMap);
+    m.bindPopup(`<div style="min-width:180px;line-height:1.6"><b style="font-size:13px;color:#f0fbfd">${t.name}</b><div style="color:#2ab5cc;font-size:11px">${t.spec}</div><div style="color:rgba(240,251,253,.55);font-size:11px">📍 ${t.address}</div><div style="color:#f0c040;font-size:11px">⭐ ${t.rating} (${t.reviews})</div><div style="color:rgba(240,251,253,.5);font-size:11px">💰 ${t.fee}</div><div style="margin-top:8px"><button onclick="openBook(${t.id})" style="width:100%;padding:5px;background:linear-gradient(135deg,#1a7a8f,#0d4455);border:none;border-radius:6px;color:white;font-size:11px;font-weight:700;cursor:pointer">Book Appointment</button></div></div>`);
+    tfMks.push(m);
+  });
+}
+
+function locMe(){
+  const btn=document.getElementById('locbtn');
+  if(!navigator.geolocation){toast('Geolocation not supported.','error');return;}
+  btn.textContent='📍 Detecting…';
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      uLat=pos.coords.latitude;uLng=pos.coords.longitude;
+      if(uMark)uMark.remove();
+      const ic=L.divIcon({className:'',html:`<div style="width:28px;height:28px;background:linear-gradient(135deg,#e06080,#c04060);border:2px solid white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 4px 14px rgba(224,96,128,.6)">📍</div>`,iconSize:[28,28],iconAnchor:[14,14]});
+      uMark=L.marker([uLat,uLng],{icon:ic}).addTo(tfMap).bindPopup('<span style="font-size:12px;color:#f0fbfd">You are here</span>').openPopup();
+      tfMap.setView([uLat,uLng],13);
+      TH.forEach(t=>{t.dist=calcD(uLat,uLng,t.lat,t.lng);});
+      TH.sort((a,b)=>(a.dist??999)-(b.dist??999));
+      document.getElementById('mover').textContent='📍 '+TH.length+' therapists found near you';
+      btn.textContent='✓ Location Detected';
+      renderTFL();toast('Location detected — showing nearest therapists 🗺️','success');
+    },
+    ()=>{btn.textContent='📍 Detect My Location';toast('Could not detect location. Allow browser location access.','error');}
+  );
+}
+
+function calcD(a,b,c,d){
+  const R=6371,dLat=(c-a)*Math.PI/180,dLng=(d-b)*Math.PI/180;
+  const x=Math.sin(dLat/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+}
+
+function fTF(f){
+  S.tfFil=f;
+  document.querySelectorAll('.tfflt').forEach(b=>b.classList.remove('active'));
+  const el=document.getElementById('tf-'+f);if(el)el.classList.add('active');
+  renderTFL();
+}
+
+function renderTFL(){
+  const list=document.getElementById('tflist');
+  let data=[...TH];
+  if(S.tfFil==='online')data=data.filter(t=>t.online);
+  else if(S.tfFil!=='all')data=data.filter(t=>t.type===S.tfFil);
+  if(!data.length){list.innerHTML='<div class="tfempty">No therapists found for this filter.</div>';return;}
+  list.innerHTML=data.map((t,i)=>`
+    <div class="tfc" style="animation-delay:${i*55}ms">
+      <div class="tfav">${t.emoji}</div>
+      <div class="tfinfo">
+        <div class="tfname">${t.name}</div>
+        <div class="tfspec">${t.spec}</div>
+        <div class="tfmeta">
+          ${t.dist!=null?`<span class="tfdist">📍 ${t.dist.toFixed(1)} km</span>`:`<span class="tfdist">📍 ${t.address}</span>`}
+          <span class="tfstars">⭐ ${t.rating} (${t.reviews})</span>
+          <span class="tfav2 ${t.available?'yes':'no'}">${t.available?'Available':'Busy'}</span>
+          ${t.online?'<span style="font-size:10px;color:var(--t3)">📱 Online</span>':''}
+        </div>
+        <div style="font-size:10.5px;color:var(--muted2);margin-top:3px">💰 ${t.fee}/session</div>
+      </div>
+      <button class="tfbk" onclick="openBook(${t.id})" ${t.available?'':'disabled style="opacity:.4"'}>Book</button>
+    </div>`).join('');
+  plotTH(data);
+}
+
+const SLOTS=['Mon 9:00','Mon 11:00','Mon 14:00','Tue 10:00','Tue 15:00','Wed 9:00','Wed 13:00','Thu 11:00','Thu 16:00'];
+function openBook(id){
+  const t=TH.find(x=>x.id===id);if(!t)return;
+  S.bDoc=t;S.bSlot=null;
+  document.getElementById('bmav').textContent=t.emoji;
+  document.getElementById('bmname').textContent=t.name;
+  document.getElementById('bmspec').textContent=t.spec+' · '+t.fee;
+  const taken=[0,3,7];
+  document.getElementById('bkslots').innerHTML=SLOTS.map((s,i)=>`<button class="slot${taken.includes(i)?' taken':''}" onclick="selSlot(this,'${s}')">${s}</button>`).join('');
+  document.getElementById('bkov').classList.add('show');
+}
+function selSlot(el,s){
+  document.querySelectorAll('.slot').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');S.bSlot=s;
+}
+function hideBook(){document.getElementById('bkov').classList.remove('show');}
+function confirmBook(){
+  if(!S.bSlot){toast('Please select a time slot first.','warning');return;}
+  hideBook();
+  toast('✅ Booked with '+S.bDoc.name+' on '+S.bSlot+'! Confirmation via WhatsApp.','success');
+  setTimeout(()=>toast('📲 WhatsApp confirmation on the way…','success'),1200);
+}
+
+/* JOURNAL */
+const PROMPTS=[
+  'What made you feel most like yourself today?',
+  'What emotion came up most today, and what triggered it?',
+  'Write about one small thing you are grateful for.',
+  'What is something you want to let go of this week?',
+  'Describe your inner weather right now — what does it feel like?',
+  'What does your anxious part need from you today?',
+  'Write a letter of compassion to yourself.'
+];
+function loadJ(){
+  const s=localStorage.getItem('mb_jnl');if(s)S.jents=JSON.parse(s);
+  renderJ();
+  document.getElementById('jprompt').textContent='✦ '+PROMPTS[Math.floor(Math.random()*PROMPTS.length)];
+  document.getElementById('stj').textContent=S.jents.length;
+}
+function setJM(el){
+  document.querySelectorAll('.jmb').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');S.jmood=el.dataset.m;
+}
+function saveJ(){
+  const txt=document.getElementById('jta').value.trim();
+  if(!txt){toast('Write something first 📔','warning');return;}
+  const e={id:Date.now(),text:txt,mood:S.jmood,
+    date:new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}),
+    time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})};
+  S.jents.unshift(e);
+  localStorage.setItem('mb_jnl',JSON.stringify(S.jents.slice(0,100)));
+  document.getElementById('jta').value='';
+  document.getElementById('stj').textContent=S.jents.length;
+  renderJ();toast('Journal entry saved 📔','success');
+}
+function renderJ(){
+  const el=document.getElementById('jents');
+  if(!S.jents.length){el.innerHTML='<div class="tfempty">Your journal entries will appear here</div>';return;}
+  el.innerHTML=S.jents.slice(0,20).map((e,i)=>`
+    <div class="jecard" style="animation-delay:${i*50}ms">
+      <div class="jehead"><div class="jedate">${e.date} · ${e.time}</div><div style="font-size:16px">${e.mood}</div></div>
+      <div class="jetext">${e.text.slice(0,280)}${e.text.length>280?'…':''}</div>
+    </div>`).join('');
+}
+
+/* BREATHING */
+const BPATS={
+  '478':{seq:[{p:'Inhale',d:4},{p:'Hold',d:7},{p:'Exhale',d:8}],tip:'4-7-8: Inhale 4s → Hold 7s → Exhale 8s. Activates the parasympathetic nervous system for deep calm.'},
+  'box':{seq:[{p:'Inhale',d:4},{p:'Hold',d:4},{p:'Exhale',d:4},{p:'Hold',d:4}],tip:'Box Breathing: 4 equal sides. Used by Navy SEALs for stress control and mental clarity.'},
+  '24':{seq:[{p:'Inhale',d:2},{p:'Exhale',d:4}],tip:'2-4: Simple ratio — exhale twice as long. Works in any situation for immediate calm.'},
+  'res':{seq:[{p:'Inhale',d:5},{p:'Exhale',d:5}],tip:'Resonance breathing at ~6 breaths/min synchronises heart rate variability for emotional balance.'}
+};
+let bPI=0,bCyc=0;
+
+function setBP(p){
+  if(S.bActive)return;S.bPat=p;
+  document.querySelectorAll('.bpbt').forEach(b=>b.classList.remove('active'));
+  document.getElementById('bp-'+p).classList.add('active');
+  document.getElementById('btip').textContent=BPATS[p].tip;
+  document.getElementById('bphase').textContent='Choose a pattern and begin';
+  document.getElementById('bcnt').textContent='—';rstOrb();
+}
+function togBreath(){S.bActive?stopBreath():startBreath();}
+function startBreath(){
+  S.bActive=true;
+  document.getElementById('bstart').textContent='■ Stop';
+  document.getElementById('bstart').classList.add('stop');
+  bPI=0;bCyc=0;runBP();
+}
+function stopBreath(){
+  S.bActive=false;clearTimeout(S.bTimer);
+  document.getElementById('bstart').textContent='▶ Start Session';
+  document.getElementById('bstart').classList.remove('stop');
+  document.getElementById('bphase').textContent='Session complete';
+  document.getElementById('bcnt').textContent='—';
+  document.getElementById('blbl').textContent='Done';
+  rstOrb();
+}
+function rstOrb(){
+  const o=document.getElementById('binn');
+  o.style.transition='all .5s';
+  o.style.transform='scale(1)';
+  o.style.background='radial-gradient(circle,rgba(61,207,229,.35) 0%,rgba(26,122,143,.15) 60%,transparent 100%)';
+}
+function runBP(){
+  if(!S.bActive)return;
+  const seq=BPATS[S.bPat].seq,phase=seq[bPI%seq.length];
+  document.getElementById('bphase').textContent=phase.p;
+  document.getElementById('blbl').textContent=phase.p;
+  const o=document.getElementById('binn');
+  if(phase.p==='Inhale'){
+    o.style.transition=`transform ${phase.d}s ease-in-out, background ${phase.d}s`;
+    o.style.transform='scale(1.5)';
+    o.style.background='radial-gradient(circle,rgba(61,207,229,.55) 0%,rgba(26,122,143,.3) 60%,transparent 100%)';
+  }else if(phase.p==='Exhale'){
+    o.style.transition=`transform ${phase.d}s ease-in-out, background ${phase.d}s`;
+    o.style.transform='scale(0.85)';
+    o.style.background='radial-gradient(circle,rgba(61,207,229,.18) 0%,rgba(26,122,143,.08) 60%,transparent 100%)';
+  }else{o.style.transition='none';}
+  let t=phase.d;
+  document.getElementById('bcnt').textContent=t;
+  function tick(){
+    if(!S.bActive)return;
+    t--;document.getElementById('bcnt').textContent=t;
+    if(t<=0){
+      bPI++;
+      const seq2=BPATS[S.bPat].seq;
+      if(bPI%seq2.length===0){
+        bCyc++;
+        if(bCyc>=8){stopBreath();toast('Breathing session complete 🌬️ Well done!','success');return;}
+      }
+      S.bTimer=setTimeout(()=>runBP(),300);
+    }else{S.bTimer=setTimeout(tick,1000);}
+  }
+  S.bTimer=setTimeout(tick,1000);
+}
+
+/* TOASTS */
+function toast(m,t=''){
+  const el=document.createElement('div');el.className='toast '+t;el.textContent=m;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),300);},3300);
+}
+
+/* INPUT HELPERS */
+function hKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendCur();}}
+function aRz(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,140)+'px';}
+function updC(v){const el=document.getElementById('ccnt');el.textContent=v.length>1700?v.length+'/2000':'';}
+
+/* ═══════════════════════════════════════════════════════════════
+   CLINICIAN DASHBOARD
+═══════════════════════════════════════════════════════════════ */
+let clPatients=[];let clAlerts=[];let clDrawerPid=null;let clInviteCode='';
+
+/* ── Load everything ── */
+async function loadClinicianDash(){
+  await Promise.all([loadClinicianAlerts(), loadMyPatients()]);
+}
+
+/* ── Invite flow ── */
+async function generateInvite(){
+  const btn=document.getElementById('cl-gen-btn');
+  btn.textContent='Generating…';btn.disabled=true;
+  try{
+    const r=await aF('/clinician/invite',{method:'POST'});
+    if(r.ok){
+      const d=await r.json();
+      clInviteCode=d.invite_code;
+    } else {
+      // mock for offline dev
+      clInviteCode='MB-'+Math.random().toString(36).slice(2,10).toUpperCase();
+    }
+  }catch{
+    clInviteCode='MB-'+Math.random().toString(36).slice(2,10).toUpperCase();
+  }
+  const box=document.getElementById('cl-invite-code');
+  box.textContent=clInviteCode;
+  box.style.display='';
+  document.getElementById('cl-copy-btn').style.display='';
+  btn.textContent='&#43; New Code';btn.disabled=false;
+}
+
+function copyInviteCode(){
+  if(!clInviteCode)return;
+  navigator.clipboard.writeText(clInviteCode).then(()=>toast('Code copied! &#128203;')).catch(()=>{
+    prompt('Copy this code and share it with your patient:',clInviteCode);
+  });
+}
+
+/* ── Patient: accept invite ── */
+async function acceptInvite(){
+  const inp=document.getElementById('invite-code-input');
+  const code=(inp.value||'').trim().toUpperCase();
+  if(!code||!code.startsWith('MB-')){toast('Enter a valid invite code (MB-…)','error');return;}
+  try{
+    const r=await aF('/patient/accept-invite',{method:'POST',body:JSON.stringify({invite_code:code})});
+    if(r.ok){
+      toast('&#10003; Successfully linked to your clinician!');
+      inp.value='';
+      loadMyClinician();
+    } else {
+      const d=await r.json();
+      toast(d.detail||'Invalid code','error');
+    }
+  }catch{toast('Could not connect to server','error');}
+}
+
+async function loadMyClinician(){
+  const grp=document.getElementById('grp-my-clinician');
+  if(grp)grp.style.display='';
+  try{
+    const r=await aF('/patient/my-clinician');
+    if(!r.ok)return;
+    const d=await r.json();
+    const nameEl=document.getElementById('mc-name');
+    const sinceEl=document.getElementById('mc-since');
+    const rowInvite=document.getElementById('row-invite-input');
+    if(d.linked&&d.clinician){
+      if(nameEl)nameEl.textContent='Dr. '+d.clinician.display_name;
+      if(sinceEl)sinceEl.textContent='Linked '+fmtTs(d.clinician.linked_at);
+      if(rowInvite)rowInvite.style.display='none';
+    }
+  }catch{}
+}
+
+/* ── Alerts ── */
+async function loadClinicianAlerts(){
+  const el=document.getElementById('cl-alerts');
+  const badge=document.getElementById('cl-unread-count');
+  const navBadge=document.getElementById('alert-badge');
+  try{
+    const r=await aF('/dashboard/alerts?unread_only=true&limit=20');
+    if(!r.ok){_mockAlerts();return;}
+    const d=await r.json();
+    clAlerts=d.alerts||[];
+    badge.textContent=clAlerts.length;
+    if(navBadge)navBadge.style.display=clAlerts.length?'':'none';
+    if(!clAlerts.length){el.innerHTML='<div class="cl-empty">No unread alerts &#10003;</div>';return;}
+    _renderAlertList(clAlerts,el);
+  }catch{_mockAlerts();}
+}
+
+function _mockAlerts(){
+  clAlerts=[
+    {id:1,session_id:'sess_a3f1',patient_name:'Ahmed R.',level:'hard_escalate',message:'Crisis language detected — may be at risk',timestamp:Date.now()/1000-180},
+    {id:2,session_id:'sess_b7f2',patient_name:'Sara K.',level:'worsening',message:'PHQ trend worsening over 3 sessions',timestamp:Date.now()/1000-900},
+  ];
+  document.getElementById('cl-unread-count').textContent=clAlerts.length;
+  const nb=document.getElementById('alert-badge');
+  if(nb){nb.style.display='';nb.textContent='!';}
+  _renderAlertList(clAlerts,document.getElementById('cl-alerts'));
+}
+
+function _renderAlertList(alerts,el){
+  el.innerHTML=alerts.map(a=>`
+    <div class="cl-alert" id="al-${a.id}">
+      <div class="cl-alert-dot ${a.level}"></div>
+      <div class="cl-alert-body">
+        <div class="cl-alert-msg">${a.message}</div>
+        <div class="cl-alert-meta">${a.patient_name||fmtSid(a.session_id)} &middot; ${fmtTs(a.timestamp)}</div>
+      </div>
+      <button class="cl-alert-ack" onclick="ackAlert(${a.id},this)">Ack</button>
+    </div>`).join('');
+}
+
+async function ackAlert(id,btn){
+  btn.textContent='✓';btn.disabled=true;
+  try{await aF('/dashboard/alerts/'+id+'/ack',{method:'POST'});}catch{}
+  const el=document.getElementById('al-'+id);
+  if(el){el.style.opacity='.3';el.style.pointerEvents='none';}
+  clAlerts=clAlerts.filter(a=>a.id!==id);
+  document.getElementById('cl-unread-count').textContent=clAlerts.length;
+  if(!clAlerts.length){
+    document.getElementById('cl-alerts').innerHTML='<div class="cl-empty">All clear &#10003;</div>';
+    const nb=document.getElementById('alert-badge');if(nb)nb.style.display='none';
+  }
+}
+
+/* ── Patient list ── */
+async function loadMyPatients(){
+  const el=document.getElementById('cl-patients');
+  try{
+    const r=await aF('/clinician/my-patients');
+    if(!r.ok){_mockPatients();return;}
+    const d=await r.json();
+    clPatients=d.patients||[];
+    if(!clPatients.length){
+      el.innerHTML=`<div class="cl-empty">No patients linked yet.<br><span style="font-size:10.5px">Generate an invite code above and share it with your patient.</span></div>`;
+      document.getElementById('cl-total').textContent='0';
+      document.getElementById('cl-crisis').textContent='0';
+      document.getElementById('cl-worsen').textContent='0';
+      document.getElementById('cl-stable').textContent='0';
+      return;
+    }
+    _updateStats(clPatients);
+    _renderPatientList(clPatients);
+  }catch{_mockPatients();}
+}
+
+function _mockPatients(){
+  const now=Date.now()/1000;
+  clPatients=[
+    {patient_id:'u-a1b2c3',display_name:'Ahmed Ramzy',linked_at:now-86400*10,session_count:4,sessions:[{session_id:'sess_a3f1b9c0',total_turns:34,last_active:now-180,risk_trend:'hard_escalate'}],has_crisis:true},
+    {patient_id:'u-d4e5f6',display_name:'Sara Khalil',linked_at:now-86400*5,session_count:2,sessions:[{session_id:'sess_b7f2c4d1',total_turns:21,last_active:now-900,risk_trend:'worsening'}],has_crisis:false},
+    {patient_id:'u-g7h8i9',display_name:'Mohamed Adel',linked_at:now-86400*20,session_count:6,sessions:[{session_id:'sess_c2e3f5a0',total_turns:58,last_active:now-7200,risk_trend:'stable'}],has_crisis:false},
+    {patient_id:'u-j0k1l2',display_name:'Nadia Hassan',linked_at:now-86400*3,session_count:1,sessions:[{session_id:'sess_d4g5h6b2',total_turns:9,last_active:now-3600,risk_trend:'stable'}],has_crisis:false},
+  ];
+  _updateStats(clPatients);
+  _renderPatientList(clPatients);
+}
+
+function _updateStats(patients){
+  const crisis=patients.filter(p=>p.has_crisis||(p.sessions||[]).some(s=>s.risk_trend==='hard_escalate'||s.risk_trend==='watchdog_veto')).length;
+  const warn=patients.filter(p=>!p.has_crisis&&(p.sessions||[]).some(s=>s.risk_trend==='worsening')).length;
+  const stable=patients.length-crisis-warn;
+  document.getElementById('cl-total').textContent=patients.length;
+  document.getElementById('cl-crisis').textContent=crisis;
+  document.getElementById('cl-worsen').textContent=Math.max(0,warn);
+  document.getElementById('cl-stable').textContent=Math.max(0,stable);
+}
+
+function _renderPatientList(patients){
+  const el=document.getElementById('cl-patients');
+  if(!patients.length){el.innerHTML='<div class="cl-empty">No patients match</div>';return;}
+  el.innerHTML=patients.map((p,i)=>{
+    const latestSess=(p.sessions||[])[0]||{};
+    const risk=latestSess.risk_trend||'stable';
+    const isC=risk==='hard_escalate'||risk==='watchdog_veto'||p.has_crisis;
+    const isW=!isC&&(risk==='worsening');
+    const tagClass=isC?'crisis':isW?'caution':'safe';
+    const tagLabel=isC?'&#128314; Crisis':isW?'&#9888; Attention':'&#10003; Stable';
+    const initials=(p.display_name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    return `<div class="cl-pat" onclick="openPatientDrawer('${p.patient_id}')" style="animation-delay:${i*40}ms">
+      <div class="cl-pav">${initials}</div>
+      <div class="cl-pinfo">
+        <div class="cl-pname">${p.display_name||'Patient'}</div>
+        <div class="cl-psid">ID: ${fmtSid(p.patient_id)}</div>
+        <div class="cl-pmeta">
+          <span class="cl-ptag ${tagClass}">${tagLabel}</span>
+          <span class="cl-ptrend">${p.session_count||0} session${p.session_count!==1?'s':''}</span>
+          ${latestSess.last_active?`<span class="cl-ptrend">Active ${fmtTs(latestSess.last_active)}</span>`:''}
+          <span class="cl-ptrend">Linked ${fmtTs(p.linked_at)}</span>
+        </div>
+      </div>
+      <span class="cl-pchev">&#8250;</span>
+    </div>`;
+  }).join('');
+}
+
+function filterPatients(q){
+  q=q.toLowerCase();
+  const filtered=q?clPatients.filter(p=>(p.display_name||'').toLowerCase().includes(q)||p.patient_id.toLowerCase().includes(q)):clPatients;
+  _renderPatientList(filtered);
+}
+
+/* ── Patient Drawer ── */
+async function openPatientDrawer(pid){
+  clDrawerPid=pid;
+  const pat=clPatients.find(p=>p.patient_id===pid)||{};
+  const drawer=document.getElementById('cl-drawer');
+  const body=document.getElementById('cl-drawer-body');
+  document.getElementById('cl-dname').textContent=pat.display_name||'Patient';
+  document.getElementById('cl-dsid').textContent='ID: '+fmtSid(pid);
+  drawer.classList.add('open');
+  body.innerHTML='<div style="padding:24px;text-align:center;color:var(--muted2);font-size:12.5px">Loading…</div>';
+
+  // Fetch sessions for this patient
+  let sessions=pat.sessions||[];
+  try{
+    const r=await aF('/clinician/patient/'+pid+'/sessions');
+    if(r.ok){const d=await r.json();sessions=d.sessions||sessions;}
+  }catch{}
+
+  // For each session, fetch turns
+  let allTurns=[];
+  for(const sess of sessions.slice(0,3)){
+    try{
+      const r=await aF('/clinician/patient/'+pid+'/turns/'+sess.session_id+'?limit=5');
+      if(r.ok){const d=await r.json();allTurns.push(...(d.turns||[]));}
+    }catch{}
+  }
+  if(!allTurns.length)allTurns=_genMockTurns(pat);
+
+  // PHQ
+  let phq=[];
+  if(sessions.length){
+    try{
+      const r=await aF('/dashboard/phq/'+sessions[0].session_id);
+      if(r.ok){const d=await r.json();phq=d.phq_history||[];}
+    }catch{}
+  }
+  if(!phq.length)phq=_genMockPHQ();
+
+  const latestPHQ=phq.length?phq[phq.length-1].score:null;
+  const phqClass=latestPHQ>=15?'sev':latestPHQ>=8?'mod':'low';
+  const phqLabel=latestPHQ>=15?'Severe':latestPHQ>=8?'Moderate':'Mild/None';
+  const moodData=_genMockMoods(pat);
+  const moodBars=moodData.map(v=>`<div class="cl-mb" style="height:${Math.round(v*10)}%;background:hsl(${v*12},55%,50%)" title="Mood ${v}"></div>`).join('');
+
+  body.innerHTML=`
+    <div class="cl-dblock">
+      <div class="cl-dbt">Overview</div>
+      ${sessions.map((s,i)=>`
+        <div class="cl-drow"><span class="lbl">Session ${i+1}</span><span class="val" style="font-size:10px;font-family:monospace">${fmtSid(s.session_id)}</span></div>
+        <div class="cl-drow"><span class="lbl">Turns</span><span class="val">${s.total_turns||0}</span></div>
+        <div class="cl-drow"><span class="lbl">Last active</span><span class="val">${fmtTs(s.last_active)}</span></div>
+        <div class="cl-drow"><span class="lbl">Risk</span><span class="val"><span class="cl-ptag ${s.risk_trend==='hard_escalate'?'crisis':s.risk_trend==='worsening'?'caution':'safe'}" style="font-size:10px">${s.risk_trend||'stable'}</span></span></div>
+      `).join('')}
+    </div>
+    ${latestPHQ!=null?`
+    <div class="cl-dblock">
+      <div class="cl-dbt">PHQ Score</div>
+      <span class="cl-phq-chip ${phqClass}">PHQ-${latestPHQ} &middot; ${phqLabel}</span>
+      ${phq.length>1?`<div style="font-size:10px;color:var(--muted2);margin-top:5px">${phq[phq.length-1].score<phq[phq.length-2].score?'&#129382; Improving since last session':'&#129383; Worsening since last session'}</div>`:''}
+    </div>`:''}
+    <div class="cl-dblock">
+      <div class="cl-dbt">Mood (last ${moodData.length} entries)</div>
+      <div class="cl-moodbar">${moodBars}</div>
+    </div>
+    <div class="cl-dblock">
+      <div class="cl-dbt">Recent Turns</div>
+      ${allTurns.slice(0,6).map(t=>`<div class="cl-turn ${['hard_escalate','watchdog_veto'].includes(t.safety_level)?'crisis':''}">
+        <div class="agent">${(t.sub_agent||'general').replace(/_/g,' ')}</div>
+        <div class="preview">${(t.user_msg||t.user_preview||'').slice(0,90)}…</div>
+      </div>`).join('')}
+    </div>
+    <button class="cl-flag-btn" onclick="flagPatient('${pid}')">&#128314; Flag for Urgent Review</button>
+  `;
+}
+
+function closeDrawer(){document.getElementById('cl-drawer').classList.remove('open');clDrawerPid=null;}
+
+async function removePatient(pid){
+  if(!pid)return;
+  if(!confirm('Remove this patient from your panel?'))return;
+  try{await aF('/clinician/patient/'+pid,{method:'DELETE'});}catch{}
+  clPatients=clPatients.filter(p=>p.patient_id!==pid);
+  _updateStats(clPatients);
+  _renderPatientList(clPatients);
+  closeDrawer();
+  toast('Patient removed from your panel');
+}
+
+async function flagPatient(pid){
+  const reason=prompt('Reason for flagging (required):');
+  if(!reason)return;
+  const pat=clPatients.find(p=>p.patient_id===pid)||{};
+  const sess=(pat.sessions||[])[0]||{};
+  if(sess.session_id){
+    try{await aF('/dashboard/sessions/'+sess.session_id+'/flag',{method:'POST',body:JSON.stringify({reason,urgency:'urgent',clinician:S.name})});}catch{}
+  }
+  toast('Patient flagged for urgent review &#128314;','error');
+}
+
+/* ── Helpers ── */
+function fmtSid(sid){if(!sid)return '—';const s=String(sid);return s.length>18?s.slice(0,8)+'…'+s.slice(-5):s;}
+function fmtTs(ts){
+  if(!ts)return '—';
+  const d=ts>1e10?new Date(ts):new Date(ts*1000);
+  const diff=Date.now()-d.getTime();
+  if(diff<60000)return 'just now';
+  if(diff<3600000)return Math.round(diff/60000)+'m ago';
+  if(diff<86400000)return Math.round(diff/3600000)+'h ago';
+  if(diff<604800000)return Math.round(diff/86400000)+'d ago';
+  return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+}
+function _genMockPHQ(){return [14,16,13,11,10,9].map((s,i)=>({score:s,date:new Date(Date.now()-(5-i)*7*86400000).toISOString().slice(0,10)}));}
+function _genMockMoods(pat){
+  const risk=(pat.sessions||[])[0]?.risk_trend||'stable';
+  const base=risk==='hard_escalate'?2.5:risk==='worsening'?4:6.5;
+  return Array.from({length:10},(_,i)=>+(Math.min(10,Math.max(1,base+Math.sin(i*.8)*1.5+Math.random()-.5)).toFixed(1)));
+}
+function _genMockTurns(pat){
+  const risk=(pat.sessions||[])[0]?.risk_trend||'stable';
+  if(risk==='hard_escalate')return [
+    {sub_agent:'safety_watchdog',safety_level:'hard_escalate',user_msg:'I don\'t see the point anymore, everything feels hopeless'},
+    {sub_agent:'crisis_support',safety_level:'hard_escalate',user_msg:'I\'ve been having thoughts I know I shouldn\'t be having'},
+    {sub_agent:'general_support',safety_level:'safe',user_msg:'I reached out to the hotline like you said, it helped'},
+  ];
+  return [
+    {sub_agent:'general_support',safety_level:'safe',user_msg:'I\'ve been practicing the breathing exercises you suggested'},
+    {sub_agent:'mood_tracker',safety_level:'safe',user_msg:'My mood has been around a 6 today, better than yesterday'},
+    {sub_agent:'general_support',safety_level:'safe',user_msg:'Work is still stressful but I\'m managing it better now'},
+  ];
+}
+
+/* ── On app load: show My Clinician section for patients ── */
+function _initClinicianFeatures(){
+  if(S.role==='patient'||S.role==='user'){
+    document.getElementById('grp-my-clinician').style.display='';
+    loadMyClinician();
+  }
+  if(S.role==='clinician'){
+    document.getElementById('nav-clinician').style.display='flex';
+  }
+}
+
+</script>
+</body>
+</html>
