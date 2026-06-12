@@ -243,7 +243,10 @@ class UserDB:
     def create_invite(self, clinician_id: str) -> Dict[str, Any]:
         """Generate a one-time invite code for a clinician to share with a patient."""
         import secrets
-        code = "MB-" + secrets.token_urlsafe(8).upper()
+        # Generate alphanumeric-only code, no special chars, max 12 chars total
+        import random, string
+        chars = string.ascii_uppercase + string.digits
+        code = "MB-" + "".join(random.choices(chars, k=8))
         try:
             with self._conn() as conn:
                 conn.execute(
