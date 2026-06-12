@@ -810,7 +810,7 @@ body::after{content:'';position:fixed;inset:0;z-index:1;background-image:url("da
             <div class="srow" id="row-invite-input">
               <div class="srl"><div class="srt">Enter invite code</div><div class="srs">Your clinician will share this with you</div></div>
               <div style="display:flex;gap:6px;align-items:center">
-                <input id="invite-code-input" class="cl-search" style="max-width:160px;font-family:monospace;text-transform:uppercase" placeholder="MB-XXXXXXXX" maxlength="12">
+                <input id="invite-code-input" class="cl-search" style="max-width:180px;font-family:monospace;text-transform:uppercase" placeholder="MB-XXXXXXXX" maxlength="20">
                 <button class="gbtn2" onclick="acceptInvite()">Link</button>
               </div>
             </div>
@@ -1615,21 +1615,30 @@ function copyInviteCode(){
 }
 
 /* ── Patient: accept invite ── */
+let _acceptingInvite=false;
 async function acceptInvite(){
+  if(_acceptingInvite)return;
   const inp=document.getElementById('invite-code-input');
+  const btn=document.querySelector('[onclick="acceptInvite()"]');
   const code=(inp.value||'').trim().toUpperCase();
-  if(!code||!code.startsWith('MB-')){toast('Enter a valid invite code (MB-…)','error');return;}
+  if(!code){toast('Enter an invite code first','error');return;}
+  _acceptingInvite=true;
+  if(btn){btn.disabled=true;btn.textContent='Linking...';}
   try{
     const r=await aF('/patient/accept-invite',{method:'POST',body:JSON.stringify({invite_code:code})});
+    const d=await r.json();
     if(r.ok){
-      toast('&#10003; Successfully linked to your clinician!');
+      toast('Successfully linked to your clinician!');
       inp.value='';
       loadMyClinician();
     } else {
-      const d=await r.json();
       toast(d.detail||'Invalid code','error');
     }
   }catch{toast('Could not connect to server','error');}
+  finally{
+    _acceptingInvite=false;
+    if(btn){btn.disabled=false;btn.textContent='Link';}
+  }
 }
 
 async function loadMyClinician(){
